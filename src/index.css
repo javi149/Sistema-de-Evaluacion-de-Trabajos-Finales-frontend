@@ -1,3 +1,127 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  * {
+    @apply transition-all duration-300;
+  }
+  
+  body {
+    @apply antialiased;
+    @apply bg-gradient-to-br from-academic-50 via-white to-primary-50;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  .gradient-academic {
+    background: linear-gradient(135deg, #5d7ba0 0%, #4a6385 50%, #3e516d 100%);
+  }
+  
+  .gradient-primary {
+    background: linear-gradient(135deg, #5b6df7 0%, #4a4feb 50%, #3d3dd6 100%);
+  }
+  
+  .gradient-accent {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #15803d 100%);
+  }
+
+  .gradient-secondary {
+    background: linear-gradient(135deg, #a855f7 0%, #9333ea 50%, #7e22ce 100%);
+  }
+
+  .gradient-tertiary {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 50%, #c2410c 100%);
+  }
+  
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .glass-effect-strong {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+  }
+  
+  .hover-lift {
+    @apply transition-all duration-400 ease-smooth;
+  }
+  
+  .hover-lift:hover {
+    @apply transform -translate-y-2 shadow-xl;
+  }
+
+  .hover-lift-subtle {
+    @apply transition-all duration-300 ease-smooth;
+  }
+  
+  .hover-lift-subtle:hover {
+    @apply transform -translate-y-1 shadow-lg;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-400 ease-smooth;
+  }
+  
+  .card-hover:hover {
+    @apply transform -translate-y-3 shadow-2xl scale-[1.02];
+  }
+
+  .btn-primary {
+    @apply bg-gradient-to-r from-primary-600 to-primary-500 text-white font-medium px-6 py-3 rounded-lg shadow-lg shadow-primary-200/50 hover:shadow-xl hover:shadow-primary-300/50 transition-all duration-300 hover:scale-105 active:scale-95;
+  }
+
+  .btn-accent {
+    @apply bg-gradient-to-r from-accent-600 to-accent-500 text-white font-medium px-6 py-3 rounded-lg shadow-lg shadow-accent-200/50 hover:shadow-xl hover:shadow-accent-300/50 transition-all duration-300 hover:scale-105 active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply bg-gradient-to-r from-secondary-600 to-secondary-500 text-white font-medium px-6 py-3 rounded-lg shadow-lg shadow-secondary-200/50 hover:shadow-xl hover:shadow-secondary-300/50 transition-all duration-300 hover:scale-105 active:scale-95;
+  }
+
+  .input-elegant {
+    @apply w-full px-4 py-3 border-2 border-academic-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-400 transition-all duration-300 bg-white/80 hover:bg-white hover:border-academic-300;
+  }
+
+  .card-elegant {
+    @apply bg-white/90 backdrop-blur-sm rounded-xl shadow-md border border-academic-100/50 p-6 transition-all duration-400 hover:shadow-xl hover:border-academic-200;
+  }
+
+  .page-transition {
+    @apply animate-fade-in;
+  }
+}
+
+@layer utilities {
+  .text-gradient-primary {
+    @apply bg-gradient-to-r from-primary-700 to-primary-500 bg-clip-text text-transparent;
+  }
+
+  .text-gradient-accent {
+    @apply bg-gradient-to-r from-accent-700 to-accent-500 bg-clip-text text-transparent;
+  }
+
+  .text-gradient-secondary {
+    @apply bg-gradient-to-r from-secondary-700 to-secondary-500 bg-clip-text text-transparent;
+  }
+
+  .shimmer-effect {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.3) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+}

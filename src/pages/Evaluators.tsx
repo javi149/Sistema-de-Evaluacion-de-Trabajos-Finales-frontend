@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { UserCheck, Save } from 'lucide-react';
+import { UserCheck, Save, Users } from 'lucide-react';
 import { Evaluator } from '../types';
 
 export default function Evaluators() {
@@ -33,56 +33,70 @@ export default function Evaluators() {
     return labels[role as keyof typeof labels];
   };
 
+  const getRoleColor = (role: string) => {
+    const colors: Record<string, { bg: string; text: string }> = {
+      director: { bg: 'bg-primary-100', text: 'text-primary-700' },
+      juror: { bg: 'bg-secondary-100', text: 'text-secondary-700' },
+      external: { bg: 'bg-accent-100', text: 'text-accent-700' },
+    };
+    return colors[role] || colors.juror;
+  };
+
   return (
-    <div>
-      <div className="flex items-center mb-6">
-        <UserCheck className="h-6 w-6 text-violet-600 mr-2" />
-        <h2 className="text-2xl font-bold text-gray-900">Registrar Evaluadores</h2>
+    <div className="animate-fade-in">
+      <div className="flex items-center mb-8 animate-fade-in-down">
+        <div className="bg-secondary-100 p-3 rounded-xl mr-4">
+          <UserCheck className="h-7 w-7 text-secondary-600" />
+        </div>
+        <h2 className="text-3xl font-bold text-gradient-secondary">Registrar Evaluadores</h2>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Nuevo Evaluador</h3>
-          <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="card-elegant animate-fade-in-up">
+          <h3 className="text-xl font-bold text-academic-900 mb-6 flex items-center">
+            <Save className="h-5 w-5 mr-2 text-secondary-600" />
+            Nuevo Evaluador
+          </h3>
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-semibold text-academic-700 mb-2">
                 Nombre Completo
               </label>
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+                className="input-elegant"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-semibold text-academic-700 mb-2">
                 Correo Electrónico
               </label>
               <input
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+                className="input-elegant"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Especialidad</label>
+              <label className="block text-sm font-semibold text-academic-700 mb-2">Especialidad</label>
               <input
                 type="text"
                 value={formData.specialty}
                 onChange={(e) => setFormData({ ...formData, specialty: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+                className="input-elegant"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Rol</label>
+              <label className="block text-sm font-semibold text-academic-700 mb-2">Rol</label>
               <select
                 value={formData.role}
                 onChange={(e) =>
@@ -91,7 +105,7 @@ export default function Evaluators() {
                     role: e.target.value as 'director' | 'juror' | 'external',
                   })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+                className="input-elegant"
               >
                 <option value="director">Director</option>
                 <option value="juror">Jurado</option>
@@ -101,32 +115,54 @@ export default function Evaluators() {
 
             <button
               type="submit"
-              className="w-full bg-violet-600 text-white py-2 px-4 rounded-md hover:bg-violet-700 transition-colors flex items-center justify-center"
+              className="btn-secondary w-full flex items-center justify-center"
             >
-              <Save className="h-4 w-4 mr-2" />
+              <Save className="h-5 w-5 mr-2" />
               Registrar Evaluador
             </button>
           </form>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Evaluadores Registrados ({evaluators.length})
+        <div className="card-elegant animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+          <h3 className="text-xl font-bold text-academic-900 mb-6 flex items-center">
+            <Users className="h-5 w-5 mr-2 text-secondary-600" />
+            Evaluadores Registrados
+            <span className="ml-3 bg-secondary-100 text-secondary-700 px-3 py-1 rounded-full text-sm font-semibold">
+              {evaluators.length}
+            </span>
           </h3>
-          <div className="space-y-3 max-h-96 overflow-y-auto">
+          <div className="space-y-4 max-h-96 overflow-y-auto">
             {evaluators.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">No hay evaluadores registrados</p>
+              <div className="text-center py-12 animate-fade-in">
+                <UserCheck className="h-16 w-16 text-academic-300 mx-auto mb-4" />
+                <p className="text-academic-500 font-medium">No hay evaluadores registrados</p>
+              </div>
             ) : (
-              evaluators.map((evaluator) => (
-                <div key={evaluator.id} className="border border-gray-200 rounded-md p-4">
-                  <h4 className="font-semibold text-gray-900">{evaluator.name}</h4>
-                  <p className="text-sm text-gray-600">{evaluator.email}</p>
-                  <p className="text-sm text-gray-600">Especialidad: {evaluator.specialty}</p>
-                  <span className="inline-block mt-2 text-xs bg-violet-100 text-violet-800 px-2 py-1 rounded">
-                    {getRoleLabel(evaluator.role)}
-                  </span>
-                </div>
-              ))
+              evaluators.map((evaluator, index) => {
+                const roleColor = getRoleColor(evaluator.role);
+                return (
+                  <div
+                    key={evaluator.id}
+                    className="bg-gradient-to-r from-academic-50 to-secondary-50/30 border-2 border-academic-200/50 rounded-xl p-5 hover-lift-subtle animate-fade-in-up"
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
+                    <h4 className="font-bold text-academic-900 mb-2 text-lg">{evaluator.name}</h4>
+                    <div className="space-y-1 mb-3">
+                      <p className="text-sm text-academic-700 flex items-center">
+                        <span className="font-semibold mr-2">Email:</span>
+                        {evaluator.email}
+                      </p>
+                      <p className="text-sm text-academic-700 flex items-center">
+                        <span className="font-semibold mr-2">Especialidad:</span>
+                        {evaluator.specialty}
+                      </p>
+                    </div>
+                    <span className={`inline-block text-xs font-semibold ${roleColor.bg} ${roleColor.text} px-3 py-1.5 rounded-lg`}>
+                      {getRoleLabel(evaluator.role)}
+                    </span>
+                  </div>
+                );
+              })
             )}
           </div>
         </div>
