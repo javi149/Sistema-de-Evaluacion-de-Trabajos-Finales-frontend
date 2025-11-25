@@ -5,7 +5,14 @@ export class AppConfig {
   private evaluationCriteria: Array<{ name: string; weight: number; maxScore: number }>;
 
   private constructor() {
-    this.apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    // URL base del API - se puede configurar mediante variable de entorno VITE_API_URL
+    const envUrl = import.meta.env.VITE_API_URL;
+    const defaultUrl = 'https://sistema-de-evaluacion-de-trabajos-finales-production.up.railway.app';
+    
+    // Normalizar URL: eliminar barra final si existe
+    const baseUrl = (envUrl || defaultUrl).replace(/\/$/, '');
+    this.apiBaseUrl = baseUrl;
+    
     this.institutionName = 'Universidad Example';
     this.evaluationCriteria = [
       { name: 'Contenido', weight: 0.4, maxScore: 5 },

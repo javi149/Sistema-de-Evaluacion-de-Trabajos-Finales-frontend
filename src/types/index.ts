@@ -1,9 +1,10 @@
 export interface Student {
-  id: string;
-  name: string;
+  id: number;
+  nombre: string;
+  apellido: string;
+  rut: string;
+  carrera: string;
   email: string;
-  studentId: string;
-  createdAt: string;
 }
 
 export interface Work {

@@ -7,7 +7,8 @@ export class ApiService {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = config.getApiBaseUrl();
+    // Obtener URL base y normalizar (eliminar barra final si existe)
+    this.baseUrl = config.getApiBaseUrl().replace(/\/$/, '');
   }
 
   async fetchStudents(): Promise<Student[]> {
