@@ -34,6 +34,13 @@ export interface EvaluationCriteria {
   maxScore: number;
 }
 
+export interface Criterio {
+  id: number;
+  nombre: string;
+  descripcion: string | null;
+  ponderacion: number; // Valor decimal (float) que representa el peso del criterio (ej: 0.4 = 40%)
+}
+
 export interface Grade {
   id: string;
   workId: string;
@@ -65,4 +72,13 @@ export interface Acta {
   evaluadores?: string;
   observaciones?: string;
   [key: string]: unknown; // Permite campos adicionales del backend
+}
+
+export interface Evaluacion {
+  id: number;
+  acta_id?: number;
+  criterio_id?: number;
+  nota?: number;
+  observacion?: string;
+  [key: string]: unknown;
 }

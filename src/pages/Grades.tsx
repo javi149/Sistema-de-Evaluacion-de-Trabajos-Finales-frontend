@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { ClipboardList, Save, Award } from 'lucide-react';
 import { Grade } from '../types';
-import { AppConfig } from '../config/AppConfig';
+import { useCriterios } from '../hooks';
 
 export default function Grades() {
   const [grades, setGrades] = useState<Grade[]>([]);
-  const config = AppConfig.getInstance();
-  const criteria = config.getEvaluationCriteria();
+  const { criterios, loading: criteriosLoading, error: criteriosError } = useCriterios();
 
   const [formData, setFormData] = useState({
     workId: '',
@@ -34,8 +33,21 @@ export default function Grades() {
   };
 
   const getCriteriaName = (criteriaId: string) => {
-    const criterion = criteria.find((c, index) => index.toString() === criteriaId);
-    return criterion?.name || 'Desconocido';
+    const criterion = criterios.find((c) => c.id.toString() === criteriaId);
+    return criterion?.nombre || 'Desconocido';
+  };
+
+  // Función helper para formatear ponderación
+  // Si el valor es > 1, asumimos que ya está en formato porcentaje (ej: 60 = 60%)
+  // Si el valor es <= 1, asumimos que está en formato decimal (ej: 0.6 = 60%)
+  const formatPonderacion = (ponderacion: number): string => {
+    if (ponderacion > 1) {
+      // Ya está en formato porcentaje (60 = 60%)
+      return `${ponderacion.toFixed(2)}%`;
+    } else {
+      // Está en formato decimal (0.6 = 60%)
+      return `${(ponderacion * 100).toFixed(2)}%`;
+    }
   };
 
   return (
@@ -59,17 +71,30 @@ export default function Grades() {
               <Award className="h-5 w-5 mr-2 text-primary-600" />
               Criterios de Evaluación
             </h4>
-            <ul className="space-y-2 text-sm text-primary-800">
-              {criteria.map((criterion, index) => (
-                <li key={index} className="flex items-start">
-                  <span className="text-primary-600 mr-2 font-bold">•</span>
-                  <span>
-                    <span className="font-semibold">{criterion.name}</span> - Peso:{' '}
-                    {(criterion.weight * 100).toFixed(0)}% (Max: {criterion.maxScore})
-                  </span>
-                </li>
-              ))}
-            </ul>
+            {criteriosLoading ? (
+              <p className="text-sm text-primary-700">Cargando criterios...</p>
+            ) : criteriosError ? (
+              <p className="text-sm text-red-600">Error: {criteriosError}</p>
+            ) : criterios.length === 0 ? (
+              <p className="text-sm text-primary-700">No hay criterios disponibles</p>
+            ) : (
+              <ul className="space-y-2 text-sm text-primary-800">
+                {criterios.map((criterio) => (
+                  <li key={criterio.id} className="flex items-start">
+                    <span className="text-primary-600 mr-2 font-bold">•</span>
+                    <span>
+                      <span className="font-semibold">{criterio.nombre}</span>
+                      {criterio.descripcion && (
+                        <span className="text-primary-600 ml-2">- {criterio.descripcion}</span>
+                      )}
+                      <span className="block text-xs text-primary-600 mt-1">
+                        Ponderación: {formatPonderacion(criterio.ponderacion)}
+                      </span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -104,14 +129,18 @@ export default function Grades() {
                 onChange={(e) => setFormData({ ...formData, criteriaId: e.target.value })}
                 className="input-elegant"
                 required
+                disabled={criteriosLoading || criterios.length === 0}
               >
                 <option value="">Seleccione un criterio</option>
-                {criteria.map((criterion, index) => (
-                  <option key={index} value={index.toString()}>
-                    {criterion.name} (Max: {criterion.maxScore})
+                {criterios.map((criterio) => (
+                  <option key={criterio.id} value={criterio.id.toString()}>
+                    {criterio.nombre} (Ponderación: {formatPonderacion(criterio.ponderacion)})
                   </option>
                 ))}
               </select>
+              {criteriosError && (
+                <p className="text-xs text-red-600 mt-1">Error al cargar criterios: {criteriosError}</p>
+              )}
             </div>
 
             <div>

@@ -1,4 +1,4 @@
-import { Work, Student, Grade, Evaluator } from '../types';
+import { Work, Student, Grade, Evaluator, Criterio } from '../types';
 import { ICalculationStrategy } from './CalculationStrategy';
 
 export abstract class ReportTemplate {
@@ -12,15 +12,16 @@ export abstract class ReportTemplate {
     work: Work,
     student: Student,
     grades: Grade[],
-    evaluators: Evaluator[]
+    evaluators: Evaluator[],
+    criterios: Criterio[]
   ): string {
     let report = '';
     report += this.addHeader();
     report += this.addStudentInfo(student);
     report += this.addWorkInfo(work);
     report += this.addEvaluatorsInfo(evaluators);
-    report += this.addGradesInfo(grades);
-    report += this.addFinalGrade(grades);
+    report += this.addGradesInfo(grades, criterios);
+    report += this.addFinalGrade(grades, criterios);
     report += this.addFooter();
     return report;
   }
@@ -29,8 +30,8 @@ export abstract class ReportTemplate {
   protected abstract addStudentInfo(student: Student): string;
   protected abstract addWorkInfo(work: Work): string;
   protected abstract addEvaluatorsInfo(evaluators: Evaluator[]): string;
-  protected abstract addGradesInfo(grades: Grade[]): string;
-  protected abstract addFinalGrade(grades: Grade[]): string;
+  protected abstract addGradesInfo(grades: Grade[], criterios: Criterio[]): string;
+  protected abstract addFinalGrade(grades: Grade[], criterios: Criterio[]): string;
   protected abstract addFooter(): string;
 }
 
@@ -49,8 +50,9 @@ export class StandardReport extends ReportTemplate {
     return `
 INFORMACIÓN DEL ESTUDIANTE
 --------------------------
-Nombre: ${student.name}
-Código: ${student.studentId}
+Nombre: ${student.nombre} ${student.apellido}
+RUT: ${student.rut}
+Carrera: ${student.carrera}
 Email: ${student.email}
 
 `;
@@ -78,13 +80,15 @@ JURADO EVALUADOR
     return info + '\n';
   }
 
-  protected addGradesInfo(grades: Grade[]): string {
+  protected addGradesInfo(grades: Grade[], criterios: Criterio[]): string {
     let info = `
 CALIFICACIONES
 --------------
 `;
     grades.forEach((grade) => {
-      info += `Criterio: ${grade.criteriaId} - Puntuación: ${grade.score}\n`;
+      const criterio = criterios.find((c) => c.id.toString() === grade.criteriaId);
+      const criterioNombre = criterio ? criterio.nombre : `Criterio ID: ${grade.criteriaId}`;
+      info += `Criterio: ${criterioNombre} - Puntuación: ${grade.score}\n`;
       if (grade.comments) {
         info += `  Comentarios: ${grade.comments}\n`;
       }
@@ -92,8 +96,8 @@ CALIFICACIONES
     return info + '\n';
   }
 
-  protected addFinalGrade(grades: Grade[]): string {
-    const finalGrade = this.strategy.calculate(grades, []);
+  protected addFinalGrade(grades: Grade[], criterios: Criterio[]): string {
+    const finalGrade = this.strategy.calculate(grades, criterios);
     const status = finalGrade >= 3.0 ? 'APROBADO' : 'NO APROBADO';
     return `
 CALIFICACIÓN FINAL

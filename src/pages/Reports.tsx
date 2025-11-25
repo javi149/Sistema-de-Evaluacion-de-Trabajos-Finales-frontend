@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { FileCheck, Download, Info } from 'lucide-react';
 import { StandardReport } from '../patterns/ReportTemplate';
 import { WeightedAverageStrategy } from '../patterns/CalculationStrategy';
+import { useCriterios } from '../hooks';
 
 export default function Reports() {
   const [workId, setWorkId] = useState('');
   const [generatedReport, setGeneratedReport] = useState('');
+  const { criterios, loading: criteriosLoading } = useCriterios();
 
   const handleGenerateReport = () => {
     const mockStudent = {
@@ -104,7 +106,13 @@ export default function Reports() {
 
     const strategy = new WeightedAverageStrategy();
     const reportGenerator = new StandardReport(strategy);
-    const report = reportGenerator.generateReport(mockWork, mockStudent, mockGrades, mockEvaluators);
+    const report = reportGenerator.generateReport(
+      mockWork,
+      mockStudent,
+      mockGrades,
+      mockEvaluators,
+      criterios
+    );
 
     setGeneratedReport(report);
   };
@@ -151,12 +159,17 @@ export default function Reports() {
             <div className="flex items-end">
               <button
                 onClick={handleGenerateReport}
-                disabled={!workId}
+                disabled={!workId || criteriosLoading || criterios.length === 0}
                 className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
-                Generar Acta
+                {criteriosLoading ? 'Cargando criterios...' : 'Generar Acta'}
               </button>
             </div>
+            {criterios.length === 0 && !criteriosLoading && (
+              <p className="text-sm text-red-600 mt-2">
+                No hay criterios disponibles. Por favor, agregue criterios primero.
+              </p>
+            )}
           </div>
 
           {generatedReport && (
@@ -203,7 +216,7 @@ export default function Reports() {
             </li>
             <li className="flex items-start animate-slide-in-right" style={{ animationDelay: '0.5s' }}>
               <span className="text-secondary-600 mr-3 font-bold">•</span>
-              <span>Los criterios de evaluación son parametrizables desde la configuración</span>
+              <span>Los criterios de evaluación se obtienen desde la base de datos</span>
             </li>
             <li className="flex items-start animate-slide-in-right" style={{ animationDelay: '0.6s' }}>
               <span className="text-tertiary-600 mr-3 font-bold">•</span>
