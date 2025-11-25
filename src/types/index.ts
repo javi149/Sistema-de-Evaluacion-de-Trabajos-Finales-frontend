@@ -52,3 +52,17 @@ export interface Report {
   generatedAt: string;
   grades: Grade[];
 }
+
+export interface Acta {
+  id: number;
+  trabajo_id?: number;
+  estudiante_id?: number;
+  fecha?: string;
+  titulo?: string;
+  descripcion?: string;
+  estado?: string;
+  calificacion_final?: number;
+  evaluadores?: string;
+  observaciones?: string;
+  [key: string]: unknown; // Permite campos adicionales del backend
+}
