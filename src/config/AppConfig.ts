@@ -5,7 +5,7 @@ export class AppConfig {
   private evaluationCriteria: Array<{ name: string; weight: number; maxScore: number }>;
 
   private constructor() {
-    this.apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    this.apiBaseUrl = 'https://sistema-de-evaluacion-de-trabajos-finales-production.up.railway.app/api';
     this.institutionName = 'Universidad Example';
     this.evaluationCriteria = [
       { name: 'Contenido', weight: 0.4, maxScore: 5 },
