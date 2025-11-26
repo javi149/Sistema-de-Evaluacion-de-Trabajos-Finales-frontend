@@ -18,7 +18,7 @@ export interface CreateStudentDto {
   email: string;
 }
 
-export interface UpdateStudentDto extends Partial<CreateStudentDto> {}
+export interface UpdateStudentDto extends Partial<CreateStudentDto> { }
 
 /**
  * Clase de servicio para manejar todas las operaciones CRUD de estudiantes
@@ -31,7 +31,7 @@ export class StudentService {
     // Obtener URL base y normalizar (eliminar barra final si existe)
     const baseUrl = config.getApiBaseUrl().replace(/\/$/, '');
     this.baseUrl = baseUrl;
-    this.endpoint = `${this.baseUrl}/estudiantes`;
+    this.endpoint = `${this.baseUrl}/estudiantes/`;
   }
 
   /**
@@ -41,11 +41,11 @@ export class StudentService {
   async getAll(): Promise<Student[]> {
     try {
       const response = await fetch(this.endpoint);
-      
+
       if (!response.ok) {
         throw new Error(`Error al obtener estudiantes: ${response.statusText}`);
       }
-      
+
       return await response.json();
     } catch (error) {
       console.error('Error en getAll:', error);
@@ -60,15 +60,15 @@ export class StudentService {
    */
   async getById(id: number): Promise<Student> {
     try {
-      const response = await fetch(`${this.endpoint}/${id}`);
-      
+      const response = await fetch(`${this.endpoint}${id}/`);
+
       if (!response.ok) {
         if (response.status === 404) {
           throw new Error('Estudiante no encontrado');
         }
         throw new Error(`Error al obtener estudiante: ${response.statusText}`);
       }
-      
+
       return await response.json();
     } catch (error) {
       console.error('Error en getById:', error);
@@ -90,14 +90,14 @@ export class StudentService {
         },
         body: JSON.stringify(studentData),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
           errorData.message || `Error al crear estudiante: ${response.statusText}`
         );
       }
-      
+
       return await response.json();
     } catch (error) {
       console.error('Error en create:', error);
@@ -113,14 +113,14 @@ export class StudentService {
    */
   async update(id: number, studentData: UpdateStudentDto): Promise<Student> {
     try {
-      const response = await fetch(`${this.endpoint}/${id}`, {
+      const response = await fetch(`${this.endpoint}${id}/`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(studentData),
       });
-      
+
       if (!response.ok) {
         if (response.status === 404) {
           throw new Error('Estudiante no encontrado');
@@ -130,7 +130,7 @@ export class StudentService {
           errorData.message || `Error al actualizar estudiante: ${response.statusText}`
         );
       }
-      
+
       return await response.json();
     } catch (error) {
       console.error('Error en update:', error);
@@ -145,10 +145,10 @@ export class StudentService {
    */
   async delete(id: number): Promise<void> {
     try {
-      const response = await fetch(`${this.endpoint}/${id}`, {
+      const response = await fetch(`${this.endpoint}${id}/`, {
         method: 'DELETE',
       });
-      
+
       if (!response.ok) {
         if (response.status === 404) {
           throw new Error('Estudiante no encontrado');
@@ -169,11 +169,11 @@ export class StudentService {
   async search(searchTerm: string): Promise<Student[]> {
     try {
       const response = await fetch(`${this.endpoint}?search=${encodeURIComponent(searchTerm)}`);
-      
+
       if (!response.ok) {
         throw new Error(`Error en la búsqueda: ${response.statusText}`);
       }
-      
+
       return await response.json();
     } catch (error) {
       console.error('Error en search:', error);

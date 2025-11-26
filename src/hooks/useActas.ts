@@ -30,13 +30,13 @@ export function useActas() {
       error instanceof Error
         ? error.message
         : `Error desconocido en ${operation}`;
-    
+
     setState((prev) => ({
       ...prev,
       error: errorMessage,
       loading: false,
     }));
-    
+
     console.error(`Error en ${operation}:`, error);
   }, []);
 
@@ -45,7 +45,7 @@ export function useActas() {
    */
   const fetchActas = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
-    
+
     try {
       const data = await actaService.getAll();
       setState({
@@ -63,7 +63,7 @@ export function useActas() {
    */
   const getActaById = useCallback(async (id: number): Promise<Acta | null> => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
-    
+
     try {
       const acta = await actaService.getById(id);
       setState((prev) => ({ ...prev, loading: false }));
@@ -79,20 +79,17 @@ export function useActas() {
    */
   const createActa = useCallback(async (actaData: CreateActaDto): Promise<Acta | null> => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
-    
+
     try {
       const newActa = await actaService.create(actaData);
-      setState((prev) => ({
-        actas: [...prev.actas, newActa],
-        loading: false,
-        error: null,
-      }));
+      // Recargar la lista completa para asegurar datos correctos
+      await fetchActas();
       return newActa;
     } catch (error) {
       handleError(error, 'createActa');
       return null;
     }
-  }, [handleError]);
+  }, [fetchActas, handleError]);
 
   /**
    * Actualiza un acta existente
@@ -102,49 +99,41 @@ export function useActas() {
     actaData: UpdateActaDto
   ): Promise<Acta | null> => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
-    
+
     try {
       const updatedActa = await actaService.update(id, actaData);
-      setState((prev) => ({
-        actas: prev.actas.map((a) =>
-          a.id === id ? updatedActa : a
-        ),
-        loading: false,
-        error: null,
-      }));
+      // Recargar la lista completa para asegurar datos correctos
+      await fetchActas();
       return updatedActa;
     } catch (error) {
       handleError(error, 'updateActa');
       return null;
     }
-  }, [handleError]);
+  }, [fetchActas, handleError]);
 
   /**
    * Elimina un acta
    */
   const deleteActa = useCallback(async (id: number): Promise<boolean> => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
-    
+
     try {
       await actaService.delete(id);
-      setState((prev) => ({
-        actas: prev.actas.filter((a) => a.id !== id),
-        loading: false,
-        error: null,
-      }));
+      // Recargar la lista completa para asegurar datos correctos
+      await fetchActas();
       return true;
     } catch (error) {
       handleError(error, 'deleteActa');
       return false;
     }
-  }, [handleError]);
+  }, [fetchActas, handleError]);
 
   /**
    * Busca actas por término de búsqueda
    */
   const searchActas = useCallback(async (searchTerm: string): Promise<Acta[]> => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
-    
+
     try {
       const results = await actaService.search(searchTerm);
       setState((prev) => ({
@@ -165,7 +154,7 @@ export function useActas() {
    */
   const getActasByTrabajoId = useCallback(async (trabajoId: number): Promise<Acta[]> => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
-    
+
     try {
       const results = await actaService.getByTrabajoId(trabajoId);
       setState((prev) => ({
@@ -186,7 +175,7 @@ export function useActas() {
    */
   const getActasByEstudianteId = useCallback(async (estudianteId: number): Promise<Acta[]> => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
-    
+
     try {
       const results = await actaService.getByEstudianteId(estudianteId);
       setState((prev) => ({
@@ -226,7 +215,7 @@ export function useActas() {
     actas: state.actas,
     loading: state.loading,
     error: state.error,
-    
+
     // Operaciones
     fetchActas,
     getActaById,
@@ -247,7 +236,7 @@ export function useActas() {
  */
 export function useActasList() {
   const { actas, loading, error, refresh } = useActas();
-  
+
   return {
     actas,
     loading,

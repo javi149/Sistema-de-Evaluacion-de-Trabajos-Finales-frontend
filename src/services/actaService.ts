@@ -19,7 +19,7 @@ export interface CreateActaDto {
   [key: string]: unknown;
 }
 
-export interface UpdateActaDto extends Partial<CreateActaDto> {}
+export interface UpdateActaDto extends Partial<CreateActaDto> { }
 
 /**
  * Clase de servicio para manejar todas las operaciones CRUD de actas
@@ -32,7 +32,7 @@ export class ActaService {
     // Obtener URL base y normalizar (eliminar barra final si existe)
     const baseUrl = config.getApiBaseUrl().replace(/\/$/, '');
     this.baseUrl = baseUrl;
-    this.endpoint = `${this.baseUrl}/actas`;
+    this.endpoint = `${this.baseUrl}/actas/`;
   }
 
   /**
@@ -42,11 +42,11 @@ export class ActaService {
   async getAll(): Promise<Acta[]> {
     try {
       const response = await fetch(this.endpoint);
-      
+
       if (!response.ok) {
         throw new Error(`Error al obtener actas: ${response.statusText}`);
       }
-      
+
       return await response.json();
     } catch (error) {
       console.error('Error en getAll:', error);
@@ -61,15 +61,15 @@ export class ActaService {
    */
   async getById(id: number): Promise<Acta> {
     try {
-      const response = await fetch(`${this.endpoint}/${id}`);
-      
+      const response = await fetch(`${this.endpoint}${id}/`);
+
       if (!response.ok) {
         if (response.status === 404) {
           throw new Error('Acta no encontrada');
         }
         throw new Error(`Error al obtener acta: ${response.statusText}`);
       }
-      
+
       return await response.json();
     } catch (error) {
       console.error('Error en getById:', error);
@@ -91,14 +91,14 @@ export class ActaService {
         },
         body: JSON.stringify(actaData),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
           errorData.message || `Error al crear acta: ${response.statusText}`
         );
       }
-      
+
       return await response.json();
     } catch (error) {
       console.error('Error en create:', error);
@@ -114,14 +114,14 @@ export class ActaService {
    */
   async update(id: number, actaData: UpdateActaDto): Promise<Acta> {
     try {
-      const response = await fetch(`${this.endpoint}/${id}`, {
+      const response = await fetch(`${this.endpoint}${id}/`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(actaData),
       });
-      
+
       if (!response.ok) {
         if (response.status === 404) {
           throw new Error('Acta no encontrada');
@@ -131,7 +131,7 @@ export class ActaService {
           errorData.message || `Error al actualizar acta: ${response.statusText}`
         );
       }
-      
+
       return await response.json();
     } catch (error) {
       console.error('Error en update:', error);
@@ -146,10 +146,10 @@ export class ActaService {
    */
   async delete(id: number): Promise<void> {
     try {
-      const response = await fetch(`${this.endpoint}/${id}`, {
+      const response = await fetch(`${this.endpoint}${id}/`, {
         method: 'DELETE',
       });
-      
+
       if (!response.ok) {
         if (response.status === 404) {
           throw new Error('Acta no encontrada');
@@ -170,11 +170,11 @@ export class ActaService {
   async search(searchTerm: string): Promise<Acta[]> {
     try {
       const response = await fetch(`${this.endpoint}?search=${encodeURIComponent(searchTerm)}`);
-      
+
       if (!response.ok) {
         throw new Error(`Error en la búsqueda: ${response.statusText}`);
       }
-      
+
       return await response.json();
     } catch (error) {
       console.error('Error en search:', error);
@@ -190,11 +190,11 @@ export class ActaService {
   async getByTrabajoId(trabajoId: number): Promise<Acta[]> {
     try {
       const response = await fetch(`${this.endpoint}?trabajo_id=${trabajoId}`);
-      
+
       if (!response.ok) {
         throw new Error(`Error al obtener actas del trabajo: ${response.statusText}`);
       }
-      
+
       return await response.json();
     } catch (error) {
       console.error('Error en getByTrabajoId:', error);
@@ -210,11 +210,11 @@ export class ActaService {
   async getByEstudianteId(estudianteId: number): Promise<Acta[]> {
     try {
       const response = await fetch(`${this.endpoint}?estudiante_id=${estudianteId}`);
-      
+
       if (!response.ok) {
         throw new Error(`Error al obtener actas del estudiante: ${response.statusText}`);
       }
-      
+
       return await response.json();
     } catch (error) {
       console.error('Error en getByEstudianteId:', error);

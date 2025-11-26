@@ -30,13 +30,13 @@ export function useStudents() {
       error instanceof Error
         ? error.message
         : `Error desconocido en ${operation}`;
-    
+
     setState((prev) => ({
       ...prev,
       error: errorMessage,
       loading: false,
     }));
-    
+
     console.error(`Error en ${operation}:`, error);
   }, []);
 
@@ -45,7 +45,7 @@ export function useStudents() {
    */
   const fetchStudents = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
-    
+
     try {
       const data = await studentService.getAll();
       setState({
@@ -63,7 +63,7 @@ export function useStudents() {
    */
   const getStudentById = useCallback(async (id: number): Promise<Student | null> => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
-    
+
     try {
       const student = await studentService.getById(id);
       setState((prev) => ({ ...prev, loading: false }));
@@ -79,20 +79,17 @@ export function useStudents() {
    */
   const createStudent = useCallback(async (studentData: CreateStudentDto): Promise<Student | null> => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
-    
+
     try {
       const newStudent = await studentService.create(studentData);
-      setState((prev) => ({
-        students: [...prev.students, newStudent],
-        loading: false,
-        error: null,
-      }));
+      // Recargar la lista completa para asegurar datos correctos
+      await fetchStudents();
       return newStudent;
     } catch (error) {
       handleError(error, 'createStudent');
       return null;
     }
-  }, [handleError]);
+  }, [fetchStudents, handleError]);
 
   /**
    * Actualiza un estudiante existente
@@ -102,49 +99,41 @@ export function useStudents() {
     studentData: UpdateStudentDto
   ): Promise<Student | null> => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
-    
+
     try {
       const updatedStudent = await studentService.update(id, studentData);
-      setState((prev) => ({
-        students: prev.students.map((s) =>
-          s.id === id ? updatedStudent : s
-        ),
-        loading: false,
-        error: null,
-      }));
+      // Recargar la lista completa para asegurar datos correctos
+      await fetchStudents();
       return updatedStudent;
     } catch (error) {
       handleError(error, 'updateStudent');
       return null;
     }
-  }, [handleError]);
+  }, [fetchStudents, handleError]);
 
   /**
    * Elimina un estudiante
    */
   const deleteStudent = useCallback(async (id: number): Promise<boolean> => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
-    
+
     try {
       await studentService.delete(id);
-      setState((prev) => ({
-        students: prev.students.filter((s) => s.id !== id),
-        loading: false,
-        error: null,
-      }));
+      // Recargar la lista completa para asegurar datos correctos
+      await fetchStudents();
       return true;
     } catch (error) {
       handleError(error, 'deleteStudent');
       return false;
     }
-  }, [handleError]);
+  }, [fetchStudents, handleError]);
 
   /**
    * Busca estudiantes por término de búsqueda
    */
   const searchStudents = useCallback(async (searchTerm: string): Promise<Student[]> => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
-    
+
     try {
       const results = await studentService.search(searchTerm);
       setState((prev) => ({
@@ -184,7 +173,7 @@ export function useStudents() {
     students: state.students,
     loading: state.loading,
     error: state.error,
-    
+
     // Operaciones
     fetchStudents,
     getStudentById,
@@ -203,7 +192,7 @@ export function useStudents() {
  */
 export function useStudentsList() {
   const { students, loading, error, refresh } = useStudents();
-  
+
   return {
     students,
     loading,

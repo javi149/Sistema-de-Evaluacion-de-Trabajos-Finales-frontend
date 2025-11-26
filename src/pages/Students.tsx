@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ConfirmModal } from '../components/ConfirmModal';
 import { UserPlus, Save, Users, Trash2, AlertCircle } from 'lucide-react';
 import { useStudents } from '../hooks';
 
@@ -19,13 +20,17 @@ export default function Students() {
     carrera: '',
     email: '',
   });
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [studentToDelete, setStudentToDelete] = useState<number | null>(null);
+
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     clearError();
 
     const result = await createStudent(formData);
-    
+
     if (result) {
       setFormData({
         nombre: '',
@@ -37,15 +42,38 @@ export default function Students() {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (window.confirm('¿Estás seguro de que deseas eliminar este estudiante?')) {
-      clearError();
-      await deleteStudent(id);
-    }
+  const handleDelete = (id: number) => {
+    setStudentToDelete(id);
+    setIsModalOpen(true);
   };
+
+  const confirmDelete = async () => {
+    if (studentToDelete !== null) {
+      clearError();
+      await deleteStudent(studentToDelete);
+    }
+    setIsModalOpen(false);
+    setStudentToDelete(null);
+  };
+
+  const cancelDelete = () => {
+    setIsModalOpen(false);
+    setStudentToDelete(null);
+  };
+
+  // ConfirmModal rendering
+  const confirmModal = (
+    <ConfirmModal
+      isOpen={isModalOpen}
+      message="¿Estás seguro de que deseas eliminar este estudiante?"
+      onConfirm={confirmDelete}
+      onCancel={cancelDelete}
+    />
+  );
 
   return (
     <div className="animate-fade-in">
+      {confirmModal}
       <div className="flex items-center mb-8 animate-fade-in-down">
         <div className="bg-primary-100 p-3 rounded-xl mr-4">
           <UserPlus className="h-7 w-7 text-primary-600" />

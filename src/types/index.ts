@@ -80,5 +80,11 @@ export interface Evaluacion {
   criterio_id?: number;
   nota?: number;
   observacion?: string;
+  // Campos adicionales del backend
+  evaluador_id?: number;
+  trabajo_id?: number;
+  fecha_evaluacion?: string;
+  nota_final?: number | null;
+  comentarios?: string;
   [key: string]: unknown;
 }

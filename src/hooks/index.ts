@@ -4,4 +4,5 @@
 export { useStudents, useStudentsList } from './useStudents';
 export { useActas, useActasList } from './useActas';
 export { useCriterios, useCriteriosList } from './useCriterios';
+export { useEvaluaciones, useEvaluacionesList } from './useEvaluaciones';
 

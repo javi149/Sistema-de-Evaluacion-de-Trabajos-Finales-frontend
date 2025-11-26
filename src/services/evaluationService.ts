@@ -7,10 +7,16 @@ const config = AppConfig.getInstance();
  * Tipos para las operaciones del servicio de evaluaciones
  */
 export interface CreateEvaluacionDto {
-    acta_id: number;
-    criterio_id: number;
-    nota: number;
+    acta_id?: number;
+    criterio_id?: number;
+    nota?: number;
     observacion?: string;
+    // Campos adicionales del backend
+    evaluador_id?: number;
+    trabajo_id?: number;
+    fecha_evaluacion?: string;
+    nota_final?: number | null;
+    comentarios?: string;
     [key: string]: unknown;
 }
 
@@ -27,7 +33,7 @@ export class EvaluationService {
         // Obtener URL base y normalizar (eliminar barra final si existe)
         const baseUrl = config.getApiBaseUrl().replace(/\/$/, '');
         this.baseUrl = baseUrl;
-        this.endpoint = `${this.baseUrl}/evaluaciones`;
+        this.endpoint = `${this.baseUrl}/evaluaciones/`;
     }
 
     /**
@@ -56,7 +62,7 @@ export class EvaluationService {
      */
     async getById(id: number): Promise<Evaluacion> {
         try {
-            const response = await fetch(`${this.endpoint}/${id}`);
+            const response = await fetch(`${this.endpoint}${id}/`);
 
             if (!response.ok) {
                 if (response.status === 404) {
@@ -109,7 +115,7 @@ export class EvaluationService {
      */
     async update(id: number, evaluacionData: UpdateEvaluacionDto): Promise<Evaluacion> {
         try {
-            const response = await fetch(`${this.endpoint}/${id}`, {
+            const response = await fetch(`${this.endpoint}${id}/`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -141,7 +147,7 @@ export class EvaluationService {
      */
     async delete(id: number): Promise<void> {
         try {
-            const response = await fetch(`${this.endpoint}/${id}`, {
+            const response = await fetch(`${this.endpoint}${id}/`, {
                 method: 'DELETE',
             });
 

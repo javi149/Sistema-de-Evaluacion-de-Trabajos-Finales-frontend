@@ -30,13 +30,13 @@ export function useCriterios() {
       error instanceof Error
         ? error.message
         : `Error desconocido en ${operation}`;
-    
+
     setState((prev) => ({
       ...prev,
       error: errorMessage,
       loading: false,
     }));
-    
+
     console.error(`Error en ${operation}:`, error);
   }, []);
 
@@ -45,7 +45,7 @@ export function useCriterios() {
    */
   const fetchCriterios = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
-    
+
     try {
       const data = await criterioService.getAll();
       setState({
@@ -63,7 +63,7 @@ export function useCriterios() {
    */
   const getCriterioById = useCallback(async (id: number): Promise<Criterio | null> => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
-    
+
     try {
       const criterio = await criterioService.getById(id);
       setState((prev) => ({ ...prev, loading: false }));
@@ -79,20 +79,17 @@ export function useCriterios() {
    */
   const createCriterio = useCallback(async (criterioData: CreateCriterioDto): Promise<Criterio | null> => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
-    
+
     try {
       const newCriterio = await criterioService.create(criterioData);
-      setState((prev) => ({
-        criterios: [...prev.criterios, newCriterio],
-        loading: false,
-        error: null,
-      }));
+      // Recargar la lista completa para asegurar datos correctos
+      await fetchCriterios();
       return newCriterio;
     } catch (error) {
       handleError(error, 'createCriterio');
       return null;
     }
-  }, [handleError]);
+  }, [fetchCriterios, handleError]);
 
   /**
    * Actualiza un criterio existente
@@ -102,49 +99,41 @@ export function useCriterios() {
     criterioData: UpdateCriterioDto
   ): Promise<Criterio | null> => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
-    
+
     try {
       const updatedCriterio = await criterioService.update(id, criterioData);
-      setState((prev) => ({
-        criterios: prev.criterios.map((c) =>
-          c.id === id ? updatedCriterio : c
-        ),
-        loading: false,
-        error: null,
-      }));
+      // Recargar la lista completa para asegurar datos correctos
+      await fetchCriterios();
       return updatedCriterio;
     } catch (error) {
       handleError(error, 'updateCriterio');
       return null;
     }
-  }, [handleError]);
+  }, [fetchCriterios, handleError]);
 
   /**
    * Elimina un criterio
    */
   const deleteCriterio = useCallback(async (id: number): Promise<boolean> => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
-    
+
     try {
       await criterioService.delete(id);
-      setState((prev) => ({
-        criterios: prev.criterios.filter((c) => c.id !== id),
-        loading: false,
-        error: null,
-      }));
+      // Recargar la lista completa para asegurar datos correctos
+      await fetchCriterios();
       return true;
     } catch (error) {
       handleError(error, 'deleteCriterio');
       return false;
     }
-  }, [handleError]);
+  }, [fetchCriterios, handleError]);
 
   /**
    * Busca criterios por término de búsqueda
    */
   const searchCriterios = useCallback(async (searchTerm: string): Promise<Criterio[]> => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
-    
+
     try {
       const results = await criterioService.search(searchTerm);
       setState((prev) => ({
@@ -184,7 +173,7 @@ export function useCriterios() {
     criterios: state.criterios,
     loading: state.loading,
     error: state.error,
-    
+
     // Operaciones
     fetchCriterios,
     getCriterioById,
@@ -203,7 +192,7 @@ export function useCriterios() {
  */
 export function useCriteriosList() {
   const { criterios, loading, error, refresh } = useCriterios();
-  
+
   return {
     criterios,
     loading,

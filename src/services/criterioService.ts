@@ -12,7 +12,7 @@ export interface CreateCriterioDto {
   ponderacion: number; // Valor decimal (float) que representa el peso del criterio (ej: 0.4 = 40%, 0.35 = 35%)
 }
 
-export interface UpdateCriterioDto extends Partial<CreateCriterioDto> {}
+export interface UpdateCriterioDto extends Partial<CreateCriterioDto> { }
 
 /**
  * Clase de servicio para manejar todas las operaciones CRUD de criterios
@@ -25,7 +25,7 @@ export class CriterioService {
     // Obtener URL base y normalizar (eliminar barra final si existe)
     const baseUrl = config.getApiBaseUrl().replace(/\/$/, '');
     this.baseUrl = baseUrl;
-    this.endpoint = `${this.baseUrl}/criterios`;
+    this.endpoint = `${this.baseUrl}/criterios/`;
   }
 
   /**
@@ -35,11 +35,11 @@ export class CriterioService {
   async getAll(): Promise<Criterio[]> {
     try {
       const response = await fetch(this.endpoint);
-      
+
       if (!response.ok) {
         throw new Error(`Error al obtener criterios: ${response.statusText}`);
       }
-      
+
       return await response.json();
     } catch (error) {
       console.error('Error en getAll:', error);
@@ -54,15 +54,15 @@ export class CriterioService {
    */
   async getById(id: number): Promise<Criterio> {
     try {
-      const response = await fetch(`${this.endpoint}/${id}`);
-      
+      const response = await fetch(`${this.endpoint}${id}/`);
+
       if (!response.ok) {
         if (response.status === 404) {
           throw new Error('Criterio no encontrado');
         }
         throw new Error(`Error al obtener criterio: ${response.statusText}`);
       }
-      
+
       return await response.json();
     } catch (error) {
       console.error('Error en getById:', error);
@@ -84,14 +84,14 @@ export class CriterioService {
         },
         body: JSON.stringify(criterioData),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
           errorData.message || `Error al crear criterio: ${response.statusText}`
         );
       }
-      
+
       return await response.json();
     } catch (error) {
       console.error('Error en create:', error);
@@ -107,14 +107,14 @@ export class CriterioService {
    */
   async update(id: number, criterioData: UpdateCriterioDto): Promise<Criterio> {
     try {
-      const response = await fetch(`${this.endpoint}/${id}`, {
+      const response = await fetch(`${this.endpoint}${id}/`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(criterioData),
       });
-      
+
       if (!response.ok) {
         if (response.status === 404) {
           throw new Error('Criterio no encontrado');
@@ -124,7 +124,7 @@ export class CriterioService {
           errorData.message || `Error al actualizar criterio: ${response.statusText}`
         );
       }
-      
+
       return await response.json();
     } catch (error) {
       console.error('Error en update:', error);
@@ -139,10 +139,10 @@ export class CriterioService {
    */
   async delete(id: number): Promise<void> {
     try {
-      const response = await fetch(`${this.endpoint}/${id}`, {
+      const response = await fetch(`${this.endpoint}${id}/`, {
         method: 'DELETE',
       });
-      
+
       if (!response.ok) {
         if (response.status === 404) {
           throw new Error('Criterio no encontrado');
@@ -163,11 +163,11 @@ export class CriterioService {
   async search(searchTerm: string): Promise<Criterio[]> {
     try {
       const response = await fetch(`${this.endpoint}?search=${encodeURIComponent(searchTerm)}`);
-      
+
       if (!response.ok) {
         throw new Error(`Error en la búsqueda: ${response.statusText}`);
       }
-      
+
       return await response.json();
     } catch (error) {
       console.error('Error en search:', error);
