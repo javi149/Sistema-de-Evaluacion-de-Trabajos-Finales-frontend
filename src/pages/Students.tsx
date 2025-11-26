@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { ConfirmModal } from '../components/ConfirmModal';
-import { UserPlus, Save, Users, Trash2, AlertCircle } from 'lucide-react';
+import { StudentEditModal } from '../components/StudentEditModal';
+import { UserPlus, Save, Users, Trash2, AlertCircle, Edit2 } from 'lucide-react';
 import { useStudents } from '../hooks';
+import { Student } from '../types';
 
 export default function Students() {
   const {
@@ -9,6 +11,7 @@ export default function Students() {
     loading,
     error,
     createStudent,
+    partialUpdateStudent,
     deleteStudent,
     clearError,
   } = useStudents();
@@ -22,6 +25,8 @@ export default function Students() {
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState<number | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [studentToEdit, setStudentToEdit] = useState<Student | null>(null);
 
 
 
@@ -61,6 +66,27 @@ export default function Students() {
     setStudentToDelete(null);
   };
 
+  const handleEdit = (student: Student) => {
+    setStudentToEdit(student);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveEdit = async (id: number, data: any) => {
+    clearError();
+    const result = await partialUpdateStudent(id, data);
+    if (result) {
+      setIsEditModalOpen(false);
+      setStudentToEdit(null);
+      return true;
+    }
+    return false;
+  };
+
+  const handleCloseEdit = () => {
+    setIsEditModalOpen(false);
+    setStudentToEdit(null);
+  };
+
   // ConfirmModal rendering
   const confirmModal = (
     <ConfirmModal
@@ -74,6 +100,13 @@ export default function Students() {
   return (
     <div className="animate-fade-in">
       {confirmModal}
+      <StudentEditModal
+        student={studentToEdit}
+        isOpen={isEditModalOpen}
+        onClose={handleCloseEdit}
+        onSave={handleSaveEdit}
+        loading={loading}
+      />
       <div className="flex items-center mb-8 animate-fade-in-down">
         <div className="bg-primary-100 p-3 rounded-xl mr-4">
           <UserPlus className="h-7 w-7 text-primary-600" />
@@ -208,14 +241,24 @@ export default function Students() {
                       <h4 className="font-bold text-academic-900 text-lg">
                         {student.nombre} {student.apellido}
                       </h4>
-                      <button
-                        onClick={() => handleDelete(student.id)}
-                        className="text-red-600 hover:text-red-800 transition-colors p-1"
-                        title="Eliminar estudiante"
-                        disabled={loading}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleEdit(student)}
+                          className="text-primary-600 hover:text-primary-800 transition-colors p-1"
+                          title="Editar estudiante"
+                          disabled={loading}
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(student.id)}
+                          className="text-red-600 hover:text-red-800 transition-colors p-1"
+                          title="Eliminar estudiante"
+                          disabled={loading}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
                     <div className="space-y-1">
                       <p className="text-sm text-academic-700 flex items-center">

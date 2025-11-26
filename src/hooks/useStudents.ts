@@ -112,6 +112,26 @@ export function useStudents() {
   }, [fetchStudents, handleError]);
 
   /**
+   * Actualiza parcialmente un estudiante existente (PATCH)
+   */
+  const partialUpdateStudent = useCallback(async (
+    id: number,
+    studentData: UpdateStudentDto
+  ): Promise<Student | null> => {
+    setState((prev) => ({ ...prev, loading: true, error: null }));
+
+    try {
+      const updatedStudent = await studentService.partialUpdate(id, studentData);
+      // Recargar la lista completa para asegurar datos correctos
+      await fetchStudents();
+      return updatedStudent;
+    } catch (error) {
+      handleError(error, 'partialUpdateStudent');
+      return null;
+    }
+  }, [fetchStudents, handleError]);
+
+  /**
    * Elimina un estudiante
    */
   const deleteStudent = useCallback(async (id: number): Promise<boolean> => {
@@ -179,6 +199,7 @@ export function useStudents() {
     getStudentById,
     createStudent,
     updateStudent,
+    partialUpdateStudent,
     deleteStudent,
     searchStudents,
     clearError,

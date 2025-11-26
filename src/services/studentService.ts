@@ -139,6 +139,39 @@ export class StudentService {
   }
 
   /**
+   * Actualiza parcialmente un estudiante existente (PATCH)
+   * @param id - ID del estudiante a actualizar
+   * @param studentData - Datos parciales del estudiante a actualizar
+   * @returns Promise con el estudiante actualizado
+   */
+  async partialUpdate(id: number, studentData: UpdateStudentDto): Promise<Student> {
+    try {
+      const response = await fetch(`${this.endpoint}${id}/`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(studentData),
+      });
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error('Estudiante no encontrado');
+        }
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.message || `Error al actualizar estudiante: ${response.statusText}`
+        );
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error en partialUpdate:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Elimina un estudiante
    * @param id - ID del estudiante a eliminar
    * @returns Promise que se resuelve cuando la eliminación es exitosa
