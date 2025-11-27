@@ -5,8 +5,8 @@ export class AppConfig {
   private evaluationCriteria: Array<{ name: string; weight: number; maxScore: number }>;
 
   private constructor() {
-    // URL base del API - se puede configurar mediante variable de entorno VITE_API_URL
-    const envUrl = import.meta.env.VITE_API_URL;
+    // URL base del API - se puede configurar mediante variable de entorno
+    const envUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BACK;
 
     // En desarrollo, usar el proxy local. En producción, usar la URL directa
     const isDevelopment = import.meta.env.DEV;

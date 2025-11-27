@@ -11,10 +11,12 @@ export default function Reports() {
 
   const handleGenerateReport = () => {
     const mockStudent = {
-      id: '1',
-      name: 'Juan Pérez García',
+      id: 1,
+      nombre: 'Juan Pérez García',
+      apellido: 'Pérez García',
+      rut: '12345678-9',
+      carrera: 'Ingeniería de Software',
       email: 'juan.perez@universidad.edu',
-      studentId: 'EST-2020-001',
       createdAt: new Date().toISOString(),
     };
 
@@ -31,27 +33,27 @@ export default function Reports() {
 
     const mockEvaluators = [
       {
-        id: '1',
-        name: 'Dr. María López',
+        id: 1,
+        nombre: 'Dr. María López',
         email: 'maria.lopez@universidad.edu',
-        specialty: 'Ingeniería de Software',
-        role: 'director' as const,
+        tipo: 'Profesor Guía',
+        rol: 'Supervisor',
         createdAt: new Date().toISOString(),
       },
       {
-        id: '2',
-        name: 'Dr. Carlos Ramírez',
+        id: 2,
+        nombre: 'Dr. Carlos Ramírez',
         email: 'carlos.ramirez@universidad.edu',
-        specialty: 'Base de Datos',
-        role: 'juror' as const,
+        tipo: 'Comisión Evaluadora',
+        rol: 'Evaluador',
         createdAt: new Date().toISOString(),
       },
       {
-        id: '3',
-        name: 'Dra. Ana Torres',
+        id: 3,
+        nombre: 'Dra. Ana Torres',
         email: 'ana.torres@empresa.com',
-        specialty: 'Sistemas de Información',
-        role: 'external' as const,
+        tipo: 'Profesor Informante',
+        rol: 'Revisor',
         createdAt: new Date().toISOString(),
       },
     ];

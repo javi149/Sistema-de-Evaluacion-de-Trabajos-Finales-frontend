@@ -18,13 +18,21 @@ export interface Work {
 }
 
 export interface Evaluator {
-  id: string;
-  name: string;
+  id: number;
+  nombre: string;
   email: string;
-  specialty: string;
-  role: 'director' | 'juror' | 'external';
-  createdAt: string;
+  tipo: string;
+  rol: string;
+  created_at?: string;
 }
+
+export interface CreateEvaluatorDto {
+  nombre: string;
+  email: string;
+  tipo: 'guia' | 'comision' | 'informante';
+}
+
+export interface UpdateEvaluatorDto extends Partial<CreateEvaluatorDto> { }
 
 export interface EvaluationCriteria {
   id: string;
