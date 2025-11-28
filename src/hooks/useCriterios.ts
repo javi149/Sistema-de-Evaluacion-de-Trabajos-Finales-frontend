@@ -49,7 +49,7 @@ export function useCriterios() {
     try {
       const data = await criterioService.getAll();
       setState({
-        criterios: data,
+        criterios: Array.isArray(data) ? data : [],
         loading: false,
         error: null,
       });

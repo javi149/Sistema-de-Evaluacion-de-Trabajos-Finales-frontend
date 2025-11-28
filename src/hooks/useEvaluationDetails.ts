@@ -48,7 +48,7 @@ export function useEvaluationDetails() {
         try {
             const data = await evaluationDetailService.getAll();
             setState({
-                detalles: data,
+                detalles: Array.isArray(data) ? data : [],
                 loading: false,
                 error: null,
             });

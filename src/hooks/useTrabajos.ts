@@ -49,7 +49,7 @@ export function useTrabajos() {
         try {
             const data = await trabajoService.getAll();
             setState({
-                trabajos: data,
+                trabajos: Array.isArray(data) ? data : [],
                 loading: false,
                 error: null,
             });

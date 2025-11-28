@@ -49,7 +49,7 @@ export function useEvaluaciones() {
         try {
             const data = await evaluationService.getAll();
             setState({
-                evaluaciones: data,
+                evaluaciones: Array.isArray(data) ? data : [],
                 loading: false,
                 error: null,
             });

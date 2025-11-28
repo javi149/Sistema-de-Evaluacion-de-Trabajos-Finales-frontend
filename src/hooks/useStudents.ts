@@ -49,7 +49,7 @@ export function useStudents() {
     try {
       const data = await studentService.getAll();
       setState({
-        students: data,
+        students: Array.isArray(data) ? data : [],
         loading: false,
         error: null,
       });

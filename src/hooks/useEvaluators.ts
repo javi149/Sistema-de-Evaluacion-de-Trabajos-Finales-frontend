@@ -49,7 +49,7 @@ export function useEvaluators() {
         try {
             const data = await evaluatorService.getAll();
             setState({
-                evaluators: data,
+                evaluators: Array.isArray(data) ? data : [],
                 loading: false,
                 error: null,
             });
