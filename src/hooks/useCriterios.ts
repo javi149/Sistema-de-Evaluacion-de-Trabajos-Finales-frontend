@@ -112,6 +112,26 @@ export function useCriterios() {
   }, [fetchCriterios, handleError]);
 
   /**
+   * Actualiza parcialmente un criterio existente
+   */
+  const updatePartialCriterio = useCallback(async (
+    id: number,
+    criterioData: UpdateCriterioDto
+  ): Promise<Criterio | null> => {
+    setState((prev) => ({ ...prev, loading: true, error: null }));
+
+    try {
+      const updatedCriterio = await criterioService.updatePartial(id, criterioData);
+      // Recargar la lista completa para asegurar datos correctos
+      await fetchCriterios();
+      return updatedCriterio;
+    } catch (error) {
+      handleError(error, 'updatePartialCriterio');
+      return null;
+    }
+  }, [fetchCriterios, handleError]);
+
+  /**
    * Elimina un criterio
    */
   const deleteCriterio = useCallback(async (id: number): Promise<boolean> => {
@@ -179,6 +199,7 @@ export function useCriterios() {
     getCriterioById,
     createCriterio,
     updateCriterio,
+    updatePartialCriterio,
     deleteCriterio,
     searchCriterios,
     clearError,
@@ -200,4 +221,3 @@ export function useCriteriosList() {
     refresh,
   };
 }
-

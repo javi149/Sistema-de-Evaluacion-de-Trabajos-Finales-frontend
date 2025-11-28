@@ -133,6 +133,26 @@ export function useEvaluaciones() {
     }, [fetchEvaluaciones, handleError]);
 
     /**
+     * Actualiza parcialmente una evaluación existente
+     */
+    const updatePartialEvaluacion = useCallback(async (
+        id: number,
+        evaluacionData: UpdateEvaluacionDto
+    ): Promise<Evaluacion | null> => {
+        setState((prev) => ({ ...prev, loading: true, error: null }));
+
+        try {
+            const updatedEvaluacion = await evaluationService.updatePartial(id, evaluacionData);
+            // Recargar la lista completa para asegurar datos correctos
+            await fetchEvaluaciones();
+            return updatedEvaluacion;
+        } catch (error) {
+            handleError(error, 'updatePartialEvaluacion');
+            return null;
+        }
+    }, [fetchEvaluaciones, handleError]);
+
+    /**
      * Elimina una evaluación
      */
     const deleteEvaluacion = useCallback(async (id: number): Promise<boolean> => {
@@ -171,6 +191,48 @@ export function useEvaluaciones() {
     }, [handleError]);
 
     /**
+     * Obtiene evaluaciones por trabajo ID
+     */
+    const getEvaluacionesByTrabajo = useCallback(async (trabajoId: number): Promise<Evaluacion[]> => {
+        setState((prev) => ({ ...prev, loading: true, error: null }));
+
+        try {
+            const evaluaciones = await evaluationService.getByTrabajo(trabajoId);
+            setState((prev) => ({
+                ...prev,
+                evaluaciones,
+                loading: false,
+                error: null,
+            }));
+            return evaluaciones;
+        } catch (error) {
+            handleError(error, 'getEvaluacionesByTrabajo');
+            return [];
+        }
+    }, [handleError]);
+
+    /**
+     * Obtiene evaluaciones por evaluador ID
+     */
+    const getEvaluacionesByEvaluador = useCallback(async (evaluadorId: number): Promise<Evaluacion[]> => {
+        setState((prev) => ({ ...prev, loading: true, error: null }));
+
+        try {
+            const evaluaciones = await evaluationService.getByEvaluador(evaluadorId);
+            setState((prev) => ({
+                ...prev,
+                evaluaciones,
+                loading: false,
+                error: null,
+            }));
+            return evaluaciones;
+        } catch (error) {
+            handleError(error, 'getEvaluacionesByEvaluador');
+            return [];
+        }
+    }, [handleError]);
+
+    /**
      * Limpia el error del estado
      */
     const clearError = useCallback(() => {
@@ -201,8 +263,11 @@ export function useEvaluaciones() {
         getEvaluacionesByActaId,
         createEvaluacion,
         updateEvaluacion,
+        updatePartialEvaluacion,
         deleteEvaluacion,
         searchEvaluaciones,
+        getEvaluacionesByTrabajo,
+        getEvaluacionesByEvaluador,
         clearError,
         refresh,
     };

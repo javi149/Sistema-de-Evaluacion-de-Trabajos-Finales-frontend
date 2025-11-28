@@ -133,6 +133,39 @@ export class CriterioService {
   }
 
   /**
+   * Actualiza parcialmente un criterio existente
+   * @param id - ID del criterio a actualizar
+   * @param criterioData - Datos parciales del criterio a actualizar
+   * @returns Promise con el criterio actualizado
+   */
+  async updatePartial(id: number, criterioData: UpdateCriterioDto): Promise<Criterio> {
+    try {
+      const response = await fetch(`${this.endpoint}${id}/`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(criterioData),
+      });
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error('Criterio no encontrado');
+        }
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.message || `Error al actualizar parcialmente criterio: ${response.statusText}`
+        );
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error en updatePartial:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Elimina un criterio
    * @param id - ID del criterio a eliminar
    * @returns Promise que se resuelve cuando la eliminación es exitosa

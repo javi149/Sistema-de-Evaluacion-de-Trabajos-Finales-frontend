@@ -7,4 +7,5 @@ export { useCriterios, useCriteriosList } from './useCriterios';
 export { useEvaluaciones, useEvaluacionesList } from './useEvaluaciones';
 export { useEvaluators, useEvaluatorsList } from './useEvaluators';
 export { useTrabajos, useTrabajosList } from './useTrabajos';
+export { useEvaluationDetails } from './useEvaluationDetails';
 

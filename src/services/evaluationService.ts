@@ -141,6 +141,39 @@ export class EvaluationService {
     }
 
     /**
+     * Actualiza parcialmente una evaluación existente
+     * @param id - ID de la evaluación a actualizar
+     * @param evaluacionData - Datos parciales de la evaluación a actualizar
+     * @returns Promise con la evaluación actualizada
+     */
+    async updatePartial(id: number, evaluacionData: UpdateEvaluacionDto): Promise<Evaluacion> {
+        try {
+            const response = await fetch(`${this.endpoint}${id}/`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(evaluacionData),
+            });
+
+            if (!response.ok) {
+                if (response.status === 404) {
+                    throw new Error('Evaluación no encontrada');
+                }
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(
+                    errorData.message || `Error al actualizar parcialmente la evaluación: ${response.statusText}`
+                );
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Error en updatePartial:', error);
+            throw error;
+        }
+    }
+
+    /**
      * Elimina una evaluación
      * @param id - ID de la evaluación a eliminar
      * @returns Promise que se resuelve cuando la eliminación es exitosa
@@ -199,6 +232,46 @@ export class EvaluationService {
             return await response.json();
         } catch (error) {
             console.error('Error en getByActaId:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Obtiene evaluaciones de un trabajo específico
+     * @param trabajoId - ID del trabajo
+     * @returns Promise con array de evaluaciones del trabajo
+     */
+    async getByTrabajo(trabajoId: number): Promise<Evaluacion[]> {
+        try {
+            const response = await fetch(`${this.baseUrl}/evaluaciones/trabajo/${trabajoId}/`);
+
+            if (!response.ok) {
+                throw new Error(`Error al obtener evaluaciones del trabajo: ${response.statusText}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Error en getByTrabajo:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Obtiene evaluaciones de un evaluador específico
+     * @param evaluadorId - ID del evaluador
+     * @returns Promise con array de evaluaciones del evaluador
+     */
+    async getByEvaluador(evaluadorId: number): Promise<Evaluacion[]> {
+        try {
+            const response = await fetch(`${this.baseUrl}/evaluaciones/evaluador/${evaluadorId}/`);
+
+            if (!response.ok) {
+                throw new Error(`Error al obtener evaluaciones del evaluador: ${response.statusText}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Error en getByEvaluador:', error);
             throw error;
         }
     }

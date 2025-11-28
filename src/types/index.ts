@@ -120,3 +120,12 @@ export interface Evaluacion {
   comentarios?: string;
   [key: string]: unknown;
 }
+
+export interface EvaluacionDetalle {
+  id: number;
+  evaluacion_id: number;
+  criterio_id: number;
+  nota: number;
+  observacion?: string;
+  created_at?: string;
+}
