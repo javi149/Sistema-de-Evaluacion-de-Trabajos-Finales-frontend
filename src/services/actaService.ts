@@ -221,6 +221,45 @@ export class ActaService {
       throw error;
     }
   }
+  /**
+   * Genera el acta en formato HTML
+   * @param trabajoId - ID del trabajo
+   * @returns Promise con el contenido HTML del acta
+   */
+  async generateHtml(trabajoId: number): Promise<string> {
+    try {
+      const response = await fetch(`${this.baseUrl}/actas/generar/html/${trabajoId}`);
+
+      if (!response.ok) {
+        throw new Error(`Error al generar acta HTML: ${response.statusText}`);
+      }
+
+      return await response.text();
+    } catch (error) {
+      console.error('Error en generateHtml:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Genera el acta en formato texto
+   * @param trabajoId - ID del trabajo
+   * @returns Promise con el contenido de texto del acta
+   */
+  async generateText(trabajoId: number): Promise<string> {
+    try {
+      const response = await fetch(`${this.baseUrl}/actas/generar/texto/${trabajoId}`);
+
+      if (!response.ok) {
+        throw new Error(`Error al generar acta texto: ${response.statusText}`);
+      }
+
+      return await response.text();
+    } catch (error) {
+      console.error('Error en generateText:', error);
+      throw error;
+    }
+  }
 }
 
 // Instancia singleton del servicio

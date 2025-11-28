@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Trabajo } from '../types';
 import { trabajoService, CreateTrabajoDto, UpdateTrabajoDto } from '../services/trabajoService';
+import { apiService } from '../services/apiService';
 
 /**
  * Estado de carga y error para las operaciones
@@ -185,6 +186,22 @@ export function useTrabajos() {
     }, [handleError]);
 
     /**
+     * Calcula la nota final de un trabajo
+     */
+    const calculateGrade = useCallback(async (trabajoId: number): Promise<any | null> => {
+        setState((prev) => ({ ...prev, loading: true, error: null }));
+
+        try {
+            const result = await apiService.calcularNota(trabajoId);
+            setState((prev) => ({ ...prev, loading: false }));
+            return result;
+        } catch (error) {
+            handleError(error, 'calculateGrade');
+            return null;
+        }
+    }, [handleError]);
+
+    /**
      * Limpia el error del estado
      */
     const clearError = useCallback(() => {
@@ -218,6 +235,7 @@ export function useTrabajos() {
         deleteTrabajo,
         getTrabajosByEstudiante,
         getEvaluaciones,
+        calculateGrade,
         clearError,
         refresh,
     };

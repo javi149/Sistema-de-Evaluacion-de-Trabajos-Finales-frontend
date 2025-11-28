@@ -1,4 +1,4 @@
-import { Users, FileText, UserCheck, ClipboardList, FileCheck, Award } from 'lucide-react';
+import { Users, FileText, UserCheck, ClipboardList, FileCheck, Award, Briefcase } from 'lucide-react';
 
 interface NavigationProps {
   currentPage: string;
@@ -13,6 +13,7 @@ export default function Navigation({ currentPage, onNavigate }: NavigationProps)
     { id: 'grades', label: 'Ingresar Notas', icon: ClipboardList, color: 'tertiary' },
     { id: 'reports', label: 'Ver Actas', icon: FileCheck, color: 'primary' },
     { id: 'criteria', label: 'Gestionar Criterios', icon: Award, color: 'accent' },
+    { id: 'work-types', label: 'Tipos de Trabajo', icon: Briefcase, color: 'secondary' },
   ];
 
   const getActiveClasses = (color: string) => {

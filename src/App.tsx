@@ -9,6 +9,9 @@ import Evaluators from './pages/Evaluators';
 import Grades from './pages/Grades';
 import Reports from './pages/Reports';
 
+import Criteria from './pages/Criteria';
+import WorkTypes from './pages/WorkTypes';
+
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
 
@@ -26,6 +29,10 @@ function App() {
         return <Grades />;
       case 'reports':
         return <Reports />;
+      case 'criteria':
+        return <Criteria />;
+      case 'work-types':
+        return <WorkTypes />;
       default:
         return <Home onNavigate={setCurrentPage} />;
     }

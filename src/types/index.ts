@@ -129,3 +129,16 @@ export interface EvaluacionDetalle {
   observacion?: string;
   created_at?: string;
 }
+
+export interface TipoTrabajo {
+  id: number;
+  nombre: string;
+  descripcion: string | null;
+}
+
+export interface CreateTipoTrabajoDto {
+  nombre: string;
+  descripcion?: string;
+}
+
+export interface UpdateTipoTrabajoDto extends Partial<CreateTipoTrabajoDto> { }

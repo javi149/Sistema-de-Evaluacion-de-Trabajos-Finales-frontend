@@ -210,6 +210,38 @@ export function useActas() {
     fetchActas();
   }, [fetchActas]);
 
+  /**
+   * Genera el acta en HTML
+   */
+  const generateActaHtml = useCallback(async (trabajoId: number): Promise<string | null> => {
+    setState((prev) => ({ ...prev, loading: true, error: null }));
+
+    try {
+      const html = await actaService.generateHtml(trabajoId);
+      setState((prev) => ({ ...prev, loading: false }));
+      return html;
+    } catch (error) {
+      handleError(error, 'generateActaHtml');
+      return null;
+    }
+  }, [handleError]);
+
+  /**
+   * Genera el acta en Texto
+   */
+  const generateActaText = useCallback(async (trabajoId: number): Promise<string | null> => {
+    setState((prev) => ({ ...prev, loading: true, error: null }));
+
+    try {
+      const text = await actaService.generateText(trabajoId);
+      setState((prev) => ({ ...prev, loading: false }));
+      return text;
+    } catch (error) {
+      handleError(error, 'generateActaText');
+      return null;
+    }
+  }, [handleError]);
+
   return {
     // Estado
     actas: state.actas,
@@ -225,6 +257,8 @@ export function useActas() {
     searchActas,
     getActasByTrabajoId,
     getActasByEstudianteId,
+    generateActaHtml,
+    generateActaText,
     clearError,
     refresh,
   };
