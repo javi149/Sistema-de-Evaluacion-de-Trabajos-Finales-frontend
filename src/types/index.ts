@@ -17,6 +17,30 @@ export interface Work {
   createdAt: string;
 }
 
+// Interfaz basada en el modelo del backend
+export interface Trabajo {
+  id: number;
+  titulo: string;
+  resumen: string | null;
+  estudiante_id: number;
+  fecha_entrega: string; // ISO date string
+  duracion_meses: number | null;
+  nota_aprobacion: number | null;
+  requisito_aprobacion: string | null;
+}
+
+export interface CreateTrabajoDto {
+  titulo: string;
+  resumen?: string;
+  estudiante_id: number;
+  fecha_entrega: string;
+  duracion_meses?: number;
+  nota_aprobacion?: number;
+  requisito_aprobacion?: string;
+}
+
+export interface UpdateTrabajoDto extends Partial<CreateTrabajoDto> { }
+
 export interface Evaluator {
   id: number;
   nombre: string;
