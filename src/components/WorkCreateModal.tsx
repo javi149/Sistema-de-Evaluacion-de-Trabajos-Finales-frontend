@@ -1,24 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { X, Save, AlertCircle } from 'lucide-react';
-import { Trabajo } from '../types';
-import { UpdateTrabajoDto } from '../services/trabajoService';
+import { CreateTrabajoDto } from '../services/trabajoService';
+import { useStudents } from '../hooks/useStudents';
 
-interface WorkEditModalProps {
-    trabajo: Trabajo | null;
+interface WorkCreateModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave: (id: number, data: UpdateTrabajoDto) => Promise<boolean>;
+    onSave: (data: CreateTrabajoDto) => Promise<boolean>;
     loading?: boolean;
 }
 
-export function WorkEditModal({
-    trabajo,
+export function WorkCreateModal({
     isOpen,
     onClose,
     onSave,
     loading = false,
-}: WorkEditModalProps) {
-    const [formData, setFormData] = useState<UpdateTrabajoDto>({
+}: WorkCreateModalProps) {
+    const { students } = useStudents();
+
+    const [formData, setFormData] = useState<CreateTrabajoDto>({
         titulo: '',
         resumen: '',
         estudiante_id: 0,
@@ -29,42 +29,43 @@ export function WorkEditModal({
     });
     const [error, setError] = useState<string | null>(null);
 
-    // Cargar datos del trabajo cuando se abre el modal
-    useEffect(() => {
-        if (trabajo && isOpen) {
-            setFormData({
-                titulo: trabajo.titulo,
-                resumen: trabajo.resumen || '',
-                estudiante_id: trabajo.estudiante_id,
-                fecha_entrega: trabajo.fecha_entrega,
-                duracion_meses: trabajo.duracion_meses || undefined,
-                nota_aprobacion: trabajo.nota_aprobacion || undefined,
-                requisito_aprobacion: trabajo.requisito_aprobacion || '',
-            });
-            setError(null);
-        }
-    }, [trabajo, isOpen]);
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
 
-        if (!trabajo) return;
-
-        const success = await onSave(trabajo.id, formData);
+        const success = await onSave(formData);
         if (success) {
+            // Reset form
+            setFormData({
+                titulo: '',
+                resumen: '',
+                estudiante_id: students.length > 0 ? students[0].id : 0,
+                fecha_entrega: '',
+                duracion_meses: undefined,
+                nota_aprobacion: undefined,
+                requisito_aprobacion: '',
+            });
             onClose();
         } else {
-            setError('Error al actualizar el trabajo');
+            setError('Error al crear el trabajo');
         }
     };
 
     const handleClose = () => {
         setError(null);
+        setFormData({
+            titulo: '',
+            resumen: '',
+            estudiante_id: students.length > 0 ? students[0].id : 0,
+            fecha_entrega: '',
+            duracion_meses: undefined,
+            nota_aprobacion: undefined,
+            requisito_aprobacion: '',
+        });
         onClose();
     };
 
-    if (!isOpen || !trabajo) return null;
+    if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] animate-fade-in p-4">
@@ -72,7 +73,7 @@ export function WorkEditModal({
                 {/* Header - Fixed */}
                 <div className="flex items-center justify-between p-6 border-b border-academic-200 flex-shrink-0">
                     <h3 className="text-2xl font-bold text-academic-900">
-                        Editar Trabajo
+                        Nuevo Trabajo
                     </h3>
                     <button
                         onClick={handleClose}
@@ -95,11 +96,11 @@ export function WorkEditModal({
                     <div className="space-y-5">
                         <div>
                             <label className="block text-sm font-semibold text-academic-700 mb-2">
-                                Título
+                                Título del Trabajo
                             </label>
                             <input
                                 type="text"
-                                value={formData.titulo || ''}
+                                value={formData.titulo}
                                 onChange={(e) =>
                                     setFormData({ ...formData, titulo: e.target.value })
                                 }
@@ -114,7 +115,7 @@ export function WorkEditModal({
                                 Resumen
                             </label>
                             <textarea
-                                value={formData.resumen || ''}
+                                value={formData.resumen}
                                 onChange={(e) =>
                                     setFormData({ ...formData, resumen: e.target.value })
                                 }
@@ -124,30 +125,36 @@ export function WorkEditModal({
                             />
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <div>
-                                <label className="block text-sm font-semibold text-academic-700 mb-2">
-                                    ID Estudiante
-                                </label>
-                                <input
-                                    type="number"
-                                    value={formData.estudiante_id || ''}
-                                    onChange={(e) =>
-                                        setFormData({ ...formData, estudiante_id: parseInt(e.target.value) || 0 })
-                                    }
-                                    className="input-elegant"
-                                    required
-                                    disabled={loading}
-                                />
-                            </div>
+                        <div>
+                            <label className="block text-sm font-semibold text-academic-700 mb-2">
+                                Estudiante
+                            </label>
+                            <select
+                                value={formData.estudiante_id}
+                                onChange={(e) =>
+                                    setFormData({ ...formData, estudiante_id: parseInt(e.target.value) })
+                                }
+                                className="input-elegant"
+                                required
+                                disabled={loading}
+                            >
+                                <option value={0}>Seleccionar estudiante</option>
+                                {students.map((student) => (
+                                    <option key={student.id} value={student.id}>
+                                        {student.nombre} {student.apellido} - {student.rut}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
 
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
                                 <label className="block text-sm font-semibold text-academic-700 mb-2">
                                     Fecha de Entrega
                                 </label>
                                 <input
                                     type="date"
-                                    value={formData.fecha_entrega || ''}
+                                    value={formData.fecha_entrega}
                                     onChange={(e) =>
                                         setFormData({ ...formData, fecha_entrega: e.target.value })
                                     }
@@ -156,9 +163,7 @@ export function WorkEditModal({
                                     disabled={loading}
                                 />
                             </div>
-                        </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
                                 <label className="block text-sm font-semibold text-academic-700 mb-2">
                                     Duración (meses)
@@ -174,7 +179,9 @@ export function WorkEditModal({
                                     disabled={loading}
                                 />
                             </div>
+                        </div>
 
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
                                 <label className="block text-sm font-semibold text-academic-700 mb-2">
                                     Nota de Aprobación
@@ -192,21 +199,21 @@ export function WorkEditModal({
                                     disabled={loading}
                                 />
                             </div>
-                        </div>
 
-                        <div>
-                            <label className="block text-sm font-semibold text-academic-700 mb-2">
-                                Requisito de Aprobación
-                            </label>
-                            <input
-                                type="text"
-                                value={formData.requisito_aprobacion || ''}
-                                onChange={(e) =>
-                                    setFormData({ ...formData, requisito_aprobacion: e.target.value })
-                                }
-                                className="input-elegant"
-                                disabled={loading}
-                            />
+                            <div>
+                                <label className="block text-sm font-semibold text-academic-700 mb-2">
+                                    Requisito
+                                </label>
+                                <input
+                                    type="text"
+                                    value={formData.requisito_aprobacion || ''}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, requisito_aprobacion: e.target.value })
+                                    }
+                                    className="input-elegant"
+                                    disabled={loading}
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -224,11 +231,11 @@ export function WorkEditModal({
                     <button
                         type="submit"
                         onClick={handleSubmit}
-                        className="btn-primary flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="btn-accent flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
                         disabled={loading}
                     >
                         <Save className="h-5 w-5 mr-2" />
-                        {loading ? 'Guardando...' : 'Guardar Cambios'}
+                        {loading ? 'Guardando...' : 'Crear Trabajo'}
                     </button>
                 </div>
             </div>

@@ -72,10 +72,10 @@ export function EvaluationEditModal({
     if (!isOpen || !evaluacion) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fade-in">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto animate-slide-up">
-                {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-academic-200 sticky top-0 bg-white z-10">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] animate-fade-in p-4">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col animate-slide-up">
+                {/* Header - Fixed */}
+                <div className="flex items-center justify-between p-6 border-b border-academic-200 flex-shrink-0">
                     <h3 className="text-2xl font-bold text-academic-900">
                         Editar Evaluación
                     </h3>
@@ -88,8 +88,8 @@ export function EvaluationEditModal({
                     </button>
                 </div>
 
-                {/* Body */}
-                <div className="p-6">
+                {/* Body - Scrollable */}
+                <div className="p-6 overflow-y-auto flex-1">
                     {error && (
                         <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center">
                             <AlertCircle className="h-5 w-5 text-red-600 mr-2" />
@@ -97,7 +97,7 @@ export function EvaluationEditModal({
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit} className="space-y-5">
+                    <div className="space-y-5">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
                                 <label className="block text-sm font-semibold text-academic-700 mb-2">
@@ -243,27 +243,28 @@ export function EvaluationEditModal({
 
                         {/* Sección de Detalles */}
                         {evaluacion && <EvaluationDetailsSection evaluacionId={evaluacion.id} />}
+                    </div>
+                </div>
 
-                        {/* Footer Buttons */}
-                        <div className="flex justify-end gap-3 pt-4">
-                            <button
-                                type="button"
-                                onClick={handleClose}
-                                className="px-6 py-2.5 border-2 border-academic-300 text-academic-700 rounded-xl font-semibold hover:bg-academic-50 transition-all duration-200"
-                                disabled={loading}
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                type="submit"
-                                className="btn-primary flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
-                                disabled={loading}
-                            >
-                                <Save className="h-5 w-5 mr-2" />
-                                {loading ? 'Guardando...' : 'Guardar Cambios'}
-                            </button>
-                        </div>
-                    </form>
+                {/* Footer - Fixed */}
+                <div className="flex justify-end gap-3 p-6 border-t border-academic-200 flex-shrink-0">
+                    <button
+                        type="button"
+                        onClick={handleClose}
+                        className="px-6 py-2.5 border-2 border-academic-300 text-academic-700 rounded-xl font-semibold hover:bg-academic-50 transition-all duration-200"
+                        disabled={loading}
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        type="submit"
+                        onClick={handleSubmit}
+                        className="bg-gradient-to-r from-tertiary-600 to-tertiary-500 text-white font-semibold py-3 px-6 rounded-lg shadow-lg shadow-tertiary-200/50 hover:shadow-xl hover:shadow-tertiary-300/50 transition-all duration-300 hover:scale-105 active:scale-95 flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={loading}
+                    >
+                        <Save className="h-5 w-5 mr-2" />
+                        {loading ? 'Guardando...' : 'Guardar Cambios'}
+                    </button>
                 </div>
             </div>
         </div>

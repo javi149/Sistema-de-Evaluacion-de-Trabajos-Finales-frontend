@@ -12,8 +12,8 @@ export default function Layout({ children }: LayoutProps) {
       <div className="absolute top-0 left-0 w-96 h-96 bg-primary-200/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 animate-pulse-slow"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-accent-200/20 rounded-full blur-3xl translate-x-1/2 translate-y-1/2 animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
       <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-secondary-200/15 rounded-full blur-2xl animate-float"></div>
-      
-      <header className="glass-effect-strong shadow-lg border-b border-academic-200/30 sticky top-0 z-50 animate-fade-in-down">
+
+      <header className="glass-effect-strong shadow-lg border-b border-academic-200/30 top-0 z-50 animate-fade-in-down">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
           <div className="flex items-center">
             <div className="relative group">

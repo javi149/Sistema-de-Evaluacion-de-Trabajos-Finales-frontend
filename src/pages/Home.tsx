@@ -81,9 +81,9 @@ export default function Home({ onNavigate }: HomeProps) {
   return (
     <div className="animate-fade-in">
       <div className="text-center mb-16 animate-fade-in-up">
-        <h2 className="text-4xl font-bold text-gradient-primary mb-6 animate-scale-in">
+        {/* <h2 className="text-4xl font-bold text-gradient-primary mb-6 animate-scale-in">
           Sistema de Evaluación de Trabajos Finales
-        </h2>
+        </h2> */}
         <p className="text-xl text-academic-700 max-w-3xl mx-auto leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
           Plataforma integral para la gestión, evaluación y generación de actas de trabajos de
           grado

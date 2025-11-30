@@ -118,64 +118,79 @@ export default function Criteria() {
             )}
 
             {/* Criteria List */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="card-elegant overflow-hidden">
                 {loading && criterios.length === 0 ? (
-                    <div className="col-span-full text-center py-12">
+                    <div className="text-center py-12">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
                         <p className="text-academic-500">Cargando criterios...</p>
                     </div>
                 ) : criterios.length === 0 ? (
-                    <div className="col-span-full text-center py-12 card-elegant">
+                    <div className="text-center py-12">
                         <Award className="h-16 w-16 text-academic-300 mx-auto mb-4" />
                         <p className="text-academic-500 font-medium">No se encontraron criterios</p>
                     </div>
                 ) : (
-                    criterios.map((criterio, index) => (
-                        <div
-                            key={criterio.id}
-                            className="card-elegant group hover:border-primary-200 transition-all duration-300 animate-fade-in-up"
-                            style={{ animationDelay: `${index * 50}ms` }}
-                        >
-                            <div className="flex justify-between items-start mb-4">
-                                <div className="bg-primary-50 text-primary-700 px-3 py-1 rounded-lg text-sm font-bold">
-                                    ID: {criterio.id}
-                                </div>
-                                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button
-                                        onClick={() => handleEdit(criterio)}
-                                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                        title="Editar"
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                            <thead className="bg-academic-50 border-b border-academic-200">
+                                <tr>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-academic-700 uppercase tracking-wider">ID</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-academic-700 uppercase tracking-wider">Nombre</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-academic-700 uppercase tracking-wider">Descripción</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-academic-700 uppercase tracking-wider">Ponderación</th>
+                                    <th className="px-6 py-4 text-right text-xs font-semibold text-academic-700 uppercase tracking-wider">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-academic-100">
+                                {criterios.map((criterio, index) => (
+                                    <tr
+                                        key={criterio.id}
+                                        className="hover:bg-primary-50/50 transition-colors animate-fade-in-up"
+                                        style={{ animationDelay: `${index * 30}ms` }}
                                     >
-                                        <Edit2 className="h-4 w-4" />
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(criterio.id)}
-                                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                        title="Eliminar"
-                                    >
-                                        <Trash2 className="h-4 w-4" />
-                                    </button>
-                                </div>
-                            </div>
-
-                            <h3 className="text-xl font-bold text-academic-900 mb-2">
-                                {criterio.nombre}
-                            </h3>
-
-                            {criterio.descripcion && (
-                                <p className="text-academic-600 text-sm mb-4 line-clamp-2">
-                                    {criterio.descripcion}
-                                </p>
-                            )}
-
-                            <div className="mt-auto pt-4 border-t border-academic-100 flex justify-between items-center">
-                                <span className="text-sm text-academic-500 font-medium">Ponderación</span>
-                                <span className="text-lg font-bold text-primary-600">
-                                    {formatPonderacion(criterio.ponderacion)}
-                                </span>
-                            </div>
-                        </div>
-                    ))
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-bold bg-primary-100 text-primary-700">
+                                                {criterio.id}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="text-sm font-semibold text-academic-900">
+                                                {criterio.nombre}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-academic-600">
+                                            <div className="max-w-md line-clamp-2">
+                                                {criterio.descripcion || '-'}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="inline-flex items-center px-3 py-1 rounded-lg text-sm font-bold bg-primary-50 text-primary-700">
+                                                {formatPonderacion(criterio.ponderacion)}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <div className="flex justify-end gap-2">
+                                                <button
+                                                    onClick={() => handleEdit(criterio)}
+                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                    title="Editar"
+                                                >
+                                                    <Edit2 className="h-4 w-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(criterio.id)}
+                                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                    title="Eliminar"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 )}
             </div>
 

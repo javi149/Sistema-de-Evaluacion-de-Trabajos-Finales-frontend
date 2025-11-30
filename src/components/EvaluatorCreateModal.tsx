@@ -1,61 +1,56 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { X, Save, AlertCircle } from 'lucide-react';
-import { Evaluator, UpdateEvaluatorDto } from '../types';
+import { CreateEvaluatorDto } from '../types';
 
-interface EvaluatorEditModalProps {
-    evaluator: Evaluator | null;
+interface EvaluatorCreateModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave: (id: number, data: UpdateEvaluatorDto) => Promise<boolean>;
+    onSave: (data: CreateEvaluatorDto) => Promise<boolean>;
     loading?: boolean;
 }
 
-export function EvaluatorEditModal({
-    evaluator,
+export function EvaluatorCreateModal({
     isOpen,
     onClose,
     onSave,
     loading = false,
-}: EvaluatorEditModalProps) {
-    const [formData, setFormData] = useState<UpdateEvaluatorDto>({
+}: EvaluatorCreateModalProps) {
+    const [formData, setFormData] = useState<CreateEvaluatorDto>({
         nombre: '',
         email: '',
         tipo: 'guia',
     });
     const [error, setError] = useState<string | null>(null);
 
-    // Cargar datos del evaluador cuando se abre el modal
-    useEffect(() => {
-        if (evaluator && isOpen) {
-            setFormData({
-                nombre: evaluator.nombre,
-                email: evaluator.email,
-                tipo: evaluator.tipo as 'guia' | 'comision' | 'informante',
-            });
-            setError(null);
-        }
-    }, [evaluator, isOpen]);
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
 
-        if (!evaluator) return;
-
-        const success = await onSave(evaluator.id, formData);
+        const success = await onSave(formData);
         if (success) {
+            // Reset form
+            setFormData({
+                nombre: '',
+                email: '',
+                tipo: 'guia',
+            });
             onClose();
         } else {
-            setError('Error al actualizar el evaluador');
+            setError('Error al crear el evaluador');
         }
     };
 
     const handleClose = () => {
         setError(null);
+        setFormData({
+            nombre: '',
+            email: '',
+            tipo: 'guia',
+        });
         onClose();
     };
 
-    if (!isOpen || !evaluator) return null;
+    if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] animate-fade-in p-4">
@@ -63,7 +58,7 @@ export function EvaluatorEditModal({
                 {/* Header - Fixed */}
                 <div className="flex items-center justify-between p-6 border-b border-academic-200 flex-shrink-0">
                     <h3 className="text-2xl font-bold text-academic-900">
-                        Editar Evaluador
+                        Nuevo Evaluador
                     </h3>
                     <button
                         onClick={handleClose}
@@ -90,7 +85,7 @@ export function EvaluatorEditModal({
                             </label>
                             <input
                                 type="text"
-                                value={formData.nombre || ''}
+                                value={formData.nombre}
                                 onChange={(e) =>
                                     setFormData({ ...formData, nombre: e.target.value })
                                 }
@@ -106,7 +101,7 @@ export function EvaluatorEditModal({
                             </label>
                             <input
                                 type="email"
-                                value={formData.email || ''}
+                                value={formData.email}
                                 onChange={(e) =>
                                     setFormData({ ...formData, email: e.target.value })
                                 }
@@ -121,7 +116,7 @@ export function EvaluatorEditModal({
                                 Tipo de Evaluador
                             </label>
                             <select
-                                value={formData.tipo || 'guia'}
+                                value={formData.tipo}
                                 onChange={(e) =>
                                     setFormData({
                                         ...formData,
@@ -156,7 +151,7 @@ export function EvaluatorEditModal({
                         disabled={loading}
                     >
                         <Save className="h-5 w-5 mr-2" />
-                        {loading ? 'Guardando...' : 'Guardar Cambios'}
+                        {loading ? 'Guardando...' : 'Crear Evaluador'}
                     </button>
                 </div>
             </div>

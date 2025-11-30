@@ -83,57 +83,73 @@ export default function WorkTypes() {
                 </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="card-elegant overflow-hidden">
                 {loading && tiposTrabajo.length === 0 ? (
-                    <div className="col-span-full text-center py-12">
+                    <div className="text-center py-12">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-600 mx-auto mb-4"></div>
                         <p className="text-academic-500">Cargando tipos de trabajo...</p>
                     </div>
                 ) : tiposTrabajo.length === 0 ? (
-                    <div className="col-span-full text-center py-12 card-elegant">
+                    <div className="text-center py-12">
                         <Briefcase className="h-16 w-16 text-academic-300 mx-auto mb-4" />
                         <p className="text-academic-500 font-medium">No se encontraron tipos de trabajo</p>
                     </div>
                 ) : (
-                    tiposTrabajo.map((tipo, index) => (
-                        <div
-                            key={tipo.id}
-                            className="card-elegant group hover:border-accent-200 transition-all duration-300 animate-fade-in-up"
-                            style={{ animationDelay: `${index * 50}ms` }}
-                        >
-                            <div className="flex justify-between items-start mb-4">
-                                <div className="bg-accent-50 text-accent-700 px-3 py-1 rounded-lg text-sm font-bold">
-                                    ID: {tipo.id}
-                                </div>
-                                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button
-                                        onClick={() => handleEdit(tipo)}
-                                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                        title="Editar"
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                            <thead className="bg-academic-50 border-b border-academic-200">
+                                <tr>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-academic-700 uppercase tracking-wider">ID</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-academic-700 uppercase tracking-wider">Nombre</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-academic-700 uppercase tracking-wider">Descripción</th>
+                                    <th className="px-6 py-4 text-right text-xs font-semibold text-academic-700 uppercase tracking-wider">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-academic-100">
+                                {tiposTrabajo.map((tipo, index) => (
+                                    <tr
+                                        key={tipo.id}
+                                        className="hover:bg-accent-50/50 transition-colors animate-fade-in-up"
+                                        style={{ animationDelay: `${index * 30}ms` }}
                                     >
-                                        <Edit2 className="h-4 w-4" />
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(tipo.id)}
-                                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                        title="Eliminar"
-                                    >
-                                        <Trash2 className="h-4 w-4" />
-                                    </button>
-                                </div>
-                            </div>
-
-                            <h3 className="text-xl font-bold text-academic-900 mb-2">
-                                {tipo.nombre}
-                            </h3>
-
-                            {tipo.descripcion && (
-                                <p className="text-academic-600 text-sm line-clamp-3">
-                                    {tipo.descripcion}
-                                </p>
-                            )}
-                        </div>
-                    ))
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-bold bg-accent-100 text-accent-700">
+                                                {tipo.id}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="text-sm font-semibold text-academic-900">
+                                                {tipo.nombre}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-academic-600">
+                                            <div className="max-w-2xl line-clamp-2">
+                                                {tipo.descripcion || '-'}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <div className="flex justify-end gap-2">
+                                                <button
+                                                    onClick={() => handleEdit(tipo)}
+                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                    title="Editar"
+                                                >
+                                                    <Edit2 className="h-4 w-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(tipo.id)}
+                                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                    title="Eliminar"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 )}
             </div>
 
