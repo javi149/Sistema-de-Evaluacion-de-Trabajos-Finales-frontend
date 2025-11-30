@@ -156,7 +156,7 @@ export default function Students() {
             <table className="w-full">
               <thead className="bg-academic-50 border-b border-academic-200">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-academic-700 uppercase tracking-wider">ID</th>
+                  {/* <th className="px-6 py-4 text-left text-xs font-semibold text-academic-700 uppercase tracking-wider">ID</th> */}
                   <th className="px-6 py-4 text-left text-xs font-semibold text-academic-700 uppercase tracking-wider">Nombre</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-academic-700 uppercase tracking-wider">RUT</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-academic-700 uppercase tracking-wider">Carrera</th>
@@ -171,11 +171,11 @@ export default function Students() {
                     className="hover:bg-primary-50/50 transition-colors animate-fade-in-up"
                     style={{ animationDelay: `${index * 30}ms` }}
                   >
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    {/* <td className="px-6 py-4 whitespace-nowrap">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-bold bg-primary-100 text-primary-700">
                         {student.id}
                       </span>
-                    </td>
+                    </td> */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-semibold text-academic-900">
                         {student.nombre} {student.apellido}

@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ClipboardList, Plus, Edit2, Trash2, Search, RefreshCw } from 'lucide-react';
 import { Evaluacion } from '../types';
-import { useEvaluaciones, useCriterios } from '../hooks';
+import { useEvaluaciones, useCriterios, useTrabajos, useEvaluators } from '../hooks';
+import { useEvaluationDetails } from '../hooks/useEvaluationDetails';
 import { EvaluationCreateModal } from '../components/EvaluationCreateModal';
 import { EvaluationEditModal } from '../components/EvaluationEditModal';
 import { ConfirmModal } from '../components/ConfirmModal';
@@ -18,6 +19,29 @@ export default function Grades() {
   } = useEvaluaciones();
 
   const { criterios } = useCriterios();
+  const { trabajos, loading: trabajosLoading } = useTrabajos();
+  const { evaluators, loading: evaluatorsLoading } = useEvaluators();
+  const { detalles, loading: detailsLoading, fetchAllDetails } = useEvaluationDetails();
+
+  // Cargar detalles al montar
+  useEffect(() => {
+    fetchAllDetails();
+  }, [fetchAllDetails]);
+
+  const isLoading = evaluacionesLoading || trabajosLoading || evaluatorsLoading || detailsLoading;
+
+  // Combinar evaluaciones con sus detalles para obtener nota y criterio
+  const enrichedEvaluaciones = evaluaciones.map(evaluacion => {
+    const detalle = detalles.find(d => d.evaluacion_id === evaluacion.id);
+    return {
+      ...evaluacion,
+      nota: detalle?.nota || evaluacion.nota,
+      criterio_id: detalle?.criterio_id || evaluacion.criterio_id,
+      observacion: detalle?.observacion || evaluacion.observacion
+    };
+  });
+
+  console.log('Enriched Evaluaciones:', enrichedEvaluaciones);
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -69,7 +93,19 @@ export default function Grades() {
     return criterion?.nombre || 'Desconocido';
   };
 
-  const filteredEvaluaciones = evaluaciones.filter(evaluacion =>
+  const getTrabajoTitle = (id: number | undefined) => {
+    if (!id) return 'N/A';
+    const trabajo = trabajos.find(t => t.id === id);
+    return trabajo ? trabajo.titulo : `ID: ${id}`;
+  };
+
+  const getEvaluatorName = (id: number | undefined) => {
+    if (!id) return 'N/A';
+    const evaluator = evaluators.find(e => e.id === id);
+    return evaluator ? evaluator.nombre : `ID: ${id}`;
+  };
+
+  const filteredEvaluaciones = enrichedEvaluaciones.filter(evaluacion =>
     searchTerm === '' ||
     getCriteriaName(evaluacion.criterio_id).toLowerCase().includes(searchTerm.toLowerCase()) ||
     (evaluacion.observacion && evaluacion.observacion.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -135,83 +171,116 @@ export default function Grades() {
       )}
 
       {/* Evaluations Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {evaluacionesLoading && evaluaciones.length === 0 ? (
-          <div className="col-span-full text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tertiary-600 mx-auto mb-4"></div>
-            <p className="text-academic-500">Cargando evaluaciones...</p>
-          </div>
-        ) : filteredEvaluaciones.length === 0 ? (
-          <div className="col-span-full text-center py-12 card-elegant">
-            <ClipboardList className="h-16 w-16 text-academic-300 mx-auto mb-4" />
-            <p className="text-academic-500 font-medium">
-              {searchTerm ? 'No se encontraron evaluaciones con ese criterio' : 'No hay evaluaciones registradas'}
-            </p>
-          </div>
-        ) : (
-          filteredEvaluaciones.map((evaluacion, index) => (
-            <div
-              key={evaluacion.id}
-              className="card-elegant group hover:border-tertiary-200 transition-all duration-300 animate-fade-in-up"
-              style={{ animationDelay: `${index * 50}ms` }}
-            >
-              <div className="flex justify-between items-start mb-4">
-                <div className="bg-tertiary-50 text-tertiary-700 px-3 py-1 rounded-lg text-sm font-bold">
-                  ID: {evaluacion.id}
-                </div>
-                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    onClick={() => handleEdit(evaluacion)}
-                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                    title="Editar"
+      {/* Evaluations Table */}
+      <div className="card-elegant overflow-hidden animate-fade-in-up">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-tertiary-50 border-b border-tertiary-200">
+              <tr>
+                {/* <th className="px-6 py-4 text-left text-xs font-semibold text-tertiary-800 uppercase tracking-wider">
+                  ID
+                </th> */}
+                <th className="px-6 py-4 text-left text-xs font-semibold text-tertiary-800 uppercase tracking-wider">
+                  Criterio
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-tertiary-800 uppercase tracking-wider">
+                  Trabajo
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-tertiary-800 uppercase tracking-wider">
+                  Evaluador
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-tertiary-800 uppercase tracking-wider">
+                  Fecha
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-tertiary-800 uppercase tracking-wider">
+                  Nota
+                </th>
+                <th className="px-6 py-4 text-right text-xs font-semibold text-tertiary-800 uppercase tracking-wider">
+                  Acciones
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-academic-100">
+              {isLoading ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-12 text-center text-academic-500">
+                    <div className="flex flex-col items-center justify-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-tertiary-600 mb-2"></div>
+                      <p>Cargando evaluaciones...</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : filteredEvaluaciones.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-12 text-center text-academic-500">
+                    <div className="flex flex-col items-center justify-center">
+                      <ClipboardList className="h-12 w-12 text-academic-300 mb-2" />
+                      <p>{searchTerm ? 'No se encontraron evaluaciones con ese criterio' : 'No hay evaluaciones registradas'}</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredEvaluaciones.map((evaluacion, index) => (
+                  <tr
+                    key={evaluacion.id}
+                    className="hover:bg-tertiary-50/50 transition-colors animate-fade-in-up"
+                    style={{ animationDelay: `${index * 30}ms` }}
                   >
-                    <Edit2 className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(evaluacion.id)}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    title="Eliminar"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-
-              <h3 className="text-xl font-bold text-academic-900 mb-3">
-                {getCriteriaName(evaluacion.criterio_id)}
-              </h3>
-
-              <div className="space-y-2 text-sm text-academic-600 mb-4">
-                <p>
-                  <span className="font-semibold">Trabajo ID:</span> {evaluacion.trabajo_id || 'N/A'}
-                </p>
-                <p>
-                  <span className="font-semibold">Evaluador ID:</span> {evaluacion.evaluador_id || 'N/A'}
-                </p>
-                {evaluacion.fecha_evaluacion && (
-                  <p>
-                    <span className="font-semibold">Fecha:</span> {evaluacion.fecha_evaluacion}
-                  </p>
-                )}
-              </div>
-
-              <div className="flex items-center justify-between pt-4 border-t border-academic-100">
-                <span className="text-sm text-academic-500 font-medium">Nota</span>
-                <div className="bg-tertiary-100 text-tertiary-700 px-4 py-2 rounded-xl font-bold text-xl shadow-md">
-                  {evaluacion.nota}
-                </div>
-              </div>
-
-              {(evaluacion.observacion || evaluacion.comentarios) && (
-                <div className="mt-3 pt-3 border-t border-academic-100">
-                  <p className="text-sm text-academic-600 italic line-clamp-2">
-                    {evaluacion.observacion || evaluacion.comentarios}
-                  </p>
-                </div>
+                    {/* <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="bg-tertiary-100 text-tertiary-700 px-2 py-1 rounded-lg text-xs font-bold">
+                        #{evaluacion.id}
+                      </span>
+                    </td> */}
+                    <td className="px-6 py-4">
+                      <div className="text-sm font-medium text-academic-900">
+                        {getCriteriaName(evaluacion.criterio_id)}
+                      </div>
+                      {(evaluacion.observacion || evaluacion.comentarios) && (
+                        <div className="text-xs text-academic-500 truncate max-w-xs" title={evaluacion.observacion || evaluacion.comentarios}>
+                          {evaluacion.observacion || evaluacion.comentarios}
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-academic-600">
+                      <div className="font-medium text-academic-900 truncate max-w-xs" title={getTrabajoTitle(evaluacion.trabajo_id)}>
+                        {getTrabajoTitle(evaluacion.trabajo_id)}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-academic-600">
+                      {getEvaluatorName(evaluacion.evaluador_id)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-academic-600">
+                      {evaluacion.fecha_evaluacion || 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="bg-tertiary-100 text-tertiary-700 px-3 py-1 rounded-lg font-bold text-sm">
+                        {evaluacion.nota}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => handleEdit(evaluacion)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="Editar"
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(evaluacion.id)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Eliminar"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
               )}
-            </div>
-          ))
-        )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Modals */}

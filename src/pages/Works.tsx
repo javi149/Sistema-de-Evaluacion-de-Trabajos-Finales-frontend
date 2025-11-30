@@ -172,7 +172,7 @@ export default function Works() {
             <table className="w-full">
               <thead className="bg-academic-50 border-b border-academic-200">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-academic-700 uppercase tracking-wider">ID</th>
+                  {/* <th className="px-6 py-4 text-left text-xs font-semibold text-academic-700 uppercase tracking-wider">ID</th> */}
                   <th className="px-6 py-4 text-left text-xs font-semibold text-academic-700 uppercase tracking-wider">Título</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-academic-700 uppercase tracking-wider">Estudiante</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-academic-700 uppercase tracking-wider">Fecha Entrega</th>
@@ -188,11 +188,11 @@ export default function Works() {
                     className="hover:bg-accent-50/50 transition-colors animate-fade-in-up"
                     style={{ animationDelay: `${index * 30}ms` }}
                   >
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    {/* <td className="px-6 py-4 whitespace-nowrap">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-bold bg-accent-100 text-accent-700">
                         {trabajo.id}
                       </span>
-                    </td>
+                    </td> */}
                     <td className="px-6 py-4">
                       <div className="text-sm font-semibold text-academic-900 max-w-md">
                         {trabajo.titulo}

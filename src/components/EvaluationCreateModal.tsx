@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { X, Save, AlertCircle, Award } from 'lucide-react';
 import { CreateEvaluacionDto } from '../services/evaluationService';
 import { useCriterios } from '../hooks/useCriterios';
+import { useTrabajos } from '../hooks/useTrabajos';
+import { useEvaluators } from '../hooks/useEvaluators';
 
 interface EvaluationCreateModalProps {
     isOpen: boolean;
@@ -17,6 +19,8 @@ export function EvaluationCreateModal({
     loading = false,
 }: EvaluationCreateModalProps) {
     const { criterios, loading: criteriosLoading } = useCriterios();
+    const { trabajos, loading: trabajosLoading } = useTrabajos();
+    const { evaluators, loading: evaluatorsLoading } = useEvaluators();
 
     const [formData, setFormData] = useState({
         trabajo_id: '',
@@ -138,30 +142,42 @@ export function EvaluationCreateModal({
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
                                 <label className="block text-sm font-semibold text-academic-700 mb-2">
-                                    ID del Trabajo
+                                    Trabajo
                                 </label>
-                                <input
-                                    type="number"
+                                <select
                                     value={formData.trabajo_id}
                                     onChange={(e) => setFormData({ ...formData, trabajo_id: e.target.value })}
                                     className="input-elegant"
                                     required
-                                    disabled={loading}
-                                />
+                                    disabled={loading || trabajosLoading}
+                                >
+                                    <option value="">Seleccione un trabajo</option>
+                                    {trabajos.map((trabajo) => (
+                                        <option key={trabajo.id} value={trabajo.id}>
+                                            {trabajo.titulo} (ID: {trabajo.id})
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
 
                             <div>
                                 <label className="block text-sm font-semibold text-academic-700 mb-2">
-                                    ID del Evaluador
+                                    Evaluador
                                 </label>
-                                <input
-                                    type="number"
+                                <select
                                     value={formData.evaluador_id}
                                     onChange={(e) => setFormData({ ...formData, evaluador_id: e.target.value })}
                                     className="input-elegant"
                                     required
-                                    disabled={loading}
-                                />
+                                    disabled={loading || evaluatorsLoading}
+                                >
+                                    <option value="">Seleccione un evaluador</option>
+                                    {evaluators.map((evaluador) => (
+                                        <option key={evaluador.id} value={evaluador.id}>
+                                            {evaluador.nombre} (ID: {evaluador.id})
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
 

@@ -183,7 +183,7 @@ export default function Evaluators() {
             <table className="w-full">
               <thead className="bg-academic-50 border-b border-academic-200">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-academic-700 uppercase tracking-wider">ID</th>
+                  {/* <th className="px-6 py-4 text-left text-xs font-semibold text-academic-700 uppercase tracking-wider">ID</th> */}
                   <th className="px-6 py-4 text-left text-xs font-semibold text-academic-700 uppercase tracking-wider">Nombre</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-academic-700 uppercase tracking-wider">Email</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-academic-700 uppercase tracking-wider">Tipo</th>
@@ -200,11 +200,11 @@ export default function Evaluators() {
                       className="hover:bg-secondary-50/50 transition-colors animate-fade-in-up"
                       style={{ animationDelay: `${index * 30}ms` }}
                     >
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      {/* <td className="px-6 py-4 whitespace-nowrap">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-bold bg-secondary-100 text-secondary-700">
                           {evaluator.id}
                         </span>
-                      </td>
+                      </td> */}
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-semibold text-academic-900">
                           {evaluator.nombre}

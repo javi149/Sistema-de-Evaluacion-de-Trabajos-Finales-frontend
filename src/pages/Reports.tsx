@@ -15,6 +15,8 @@ export default function Reports() {
 
   const { trabajos, loading: trabajosLoading } = useTrabajos();
 
+  const isLoading = actasLoading || trabajosLoading;
+
   const [selectedTrabajoId, setSelectedTrabajoId] = useState<string>('');
   const [generatedHtml, setGeneratedHtml] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'generate'>('list');
@@ -100,69 +102,108 @@ export default function Reports() {
       )}
 
       {viewMode === 'list' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {actasLoading && actas.length === 0 ? (
-            <div className="col-span-full text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-              <p className="text-academic-500">Cargando actas...</p>
-            </div>
-          ) : actas.length === 0 ? (
-            <div className="col-span-full text-center py-12 card-elegant">
-              <FileCheck className="h-16 w-16 text-academic-300 mx-auto mb-4" />
-              <p className="text-academic-500 font-medium">No se encontraron actas generadas</p>
-            </div>
-          ) : (
-            actas.map((acta, index) => (
-              <div
-                key={acta.id}
-                className="card-elegant group hover:border-primary-200 transition-all duration-300 animate-fade-in-up"
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
-                <div className="flex justify-between items-start mb-4">
-                  <div className="bg-primary-50 text-primary-700 px-3 py-1 rounded-lg text-sm font-bold">
-                    ID: {acta.id}
-                  </div>
-                  <span className={`px-2 py-1 rounded text-xs font-semibold ${acta.estado === 'Aprobado' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                    {acta.estado || 'Generada'}
-                  </span>
-                </div>
-
-                <h3 className="text-lg font-bold text-academic-900 mb-2 line-clamp-2">
-                  {acta.titulo || getTrabajoTitle(acta.trabajo_id as number)}
-                </h3>
-
-                <div className="text-sm text-academic-600 mb-4 space-y-1">
-                  <p>Fecha: {acta.fecha ? new Date(acta.fecha).toLocaleDateString() : 'N/A'}</p>
-                  <p>Nota Final: <span className="font-bold text-primary-600">{acta.calificacion_final}</span></p>
-                </div>
-
-                <div className="mt-auto pt-4 border-t border-academic-100 flex gap-2">
-                  <button
-                    onClick={() => handleDownloadText(acta.trabajo_id as number)}
-                    className="flex-1 btn-secondary text-sm py-2 flex justify-center items-center"
-                    title="Descargar Texto"
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    Texto
-                  </button>
-                  {/* Si tuviéramos un endpoint para ver el HTML guardado, lo usaríamos aquí. 
-                      Por ahora usamos el de generar HTML al vuelo */}
-                  <button
-                    onClick={() => {
-                      setSelectedTrabajoId(String(acta.trabajo_id));
-                      setViewMode('generate');
-                      handleGenerateHtml(); // Esto regenerará el HTML
-                    }}
-                    className="flex-1 btn-primary text-sm py-2 flex justify-center items-center"
-                    title="Ver HTML"
-                  >
-                    <Eye className="h-4 w-4 mr-2" />
-                    Ver
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
+        <div className="card-elegant overflow-hidden animate-fade-in-up">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-primary-50 border-b border-primary-200">
+                <tr>
+                  {/* <th className="px-6 py-4 text-left text-xs font-semibold text-primary-800 uppercase tracking-wider">
+                    ID
+                  </th> */}
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-primary-800 uppercase tracking-wider">
+                    Título del Trabajo
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-primary-800 uppercase tracking-wider">
+                    Fecha
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-primary-800 uppercase tracking-wider">
+                    Nota Final
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-primary-800 uppercase tracking-wider">
+                    Estado
+                  </th>
+                  <th className="px-6 py-4 text-right text-xs font-semibold text-primary-800 uppercase tracking-wider">
+                    Acciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-academic-100">
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-12 text-center text-academic-500">
+                      <div className="flex flex-col items-center justify-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mb-2"></div>
+                        <p>Cargando actas...</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : actas.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-12 text-center text-academic-500">
+                      <div className="flex flex-col items-center justify-center">
+                        <FileCheck className="h-12 w-12 text-academic-300 mb-2" />
+                        <p>No se encontraron actas generadas</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  actas.map((acta, index) => (
+                    <tr
+                      key={acta.id}
+                      className="hover:bg-primary-50/50 transition-colors animate-fade-in-up"
+                      style={{ animationDelay: `${index * 30}ms` }}
+                    >
+                      {/* <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="bg-primary-50 text-primary-700 px-2 py-1 rounded-lg text-xs font-bold">
+                          #{acta.id}
+                        </span>
+                      </td> */}
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-medium text-academic-900 line-clamp-2" title={acta.titulo || getTrabajoTitle(acta.trabajo_id as number)}>
+                          {acta.titulo || getTrabajoTitle(acta.trabajo_id as number)}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-academic-600">
+                        {acta.fecha ? new Date(acta.fecha).toLocaleDateString() : 'N/A'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="font-bold text-primary-600 text-lg">
+                          {acta.calificacion_final}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 rounded text-xs font-semibold ${acta.estado === 'Aprobado' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                          {acta.estado || 'Generada'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            onClick={() => handleDownloadText(acta.trabajo_id as number)}
+                            className="p-2 text-academic-600 hover:bg-academic-100 rounded-lg transition-colors"
+                            title="Descargar Texto"
+                          >
+                            <Download className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedTrabajoId(String(acta.trabajo_id));
+                              setViewMode('generate');
+                              handleGenerateHtml();
+                            }}
+                            className="p-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                            title="Ver HTML"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
