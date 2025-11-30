@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Acta } from '../types';
 import { actaService, CreateActaDto, UpdateActaDto } from '../services/actaService';
+import { generatePdfFromHtml } from '../utils/pdfGenerator';
 
 /**
  * Estado de carga y error para las operaciones
@@ -242,6 +243,24 @@ export function useActas() {
     }
   }, [handleError]);
 
+  /**
+   * Genera y descarga el acta en PDF
+   */
+  const downloadActaPdf = useCallback(async (trabajoId: number, filename?: string): Promise<boolean> => {
+    setState((prev) => ({ ...prev, loading: true, error: null }));
+
+    try {
+      const html = await actaService.generateHtml(trabajoId);
+      const name = filename || `Acta_Trabajo_${trabajoId}.pdf`;
+      generatePdfFromHtml(html, name);
+      setState((prev) => ({ ...prev, loading: false }));
+      return true;
+    } catch (error) {
+      handleError(error, 'downloadActaPdf');
+      return false;
+    }
+  }, [handleError]);
+
   return {
     // Estado
     actas: state.actas,
@@ -259,6 +278,7 @@ export function useActas() {
     getActasByEstudianteId,
     generateActaHtml,
     generateActaText,
+    downloadActaPdf,
     clearError,
     refresh,
   };

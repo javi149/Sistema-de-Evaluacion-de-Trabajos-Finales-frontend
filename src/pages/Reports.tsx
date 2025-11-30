@@ -10,6 +10,7 @@ export default function Reports() {
     error: actasError,
     generateActaHtml,
     generateActaText,
+    downloadActaPdf,
     refresh: refreshActas
   } = useActas();
 
@@ -40,6 +41,10 @@ export default function Reports() {
       element.click();
       document.body.removeChild(element);
     }
+  };
+
+  const handleDownloadPdf = async (trabajoId: number) => {
+    await downloadActaPdf(trabajoId);
   };
 
   const getTrabajoTitle = (id: number) => {
@@ -179,6 +184,13 @@ export default function Reports() {
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex justify-end gap-2">
                           <button
+                            onClick={() => handleDownloadPdf(acta.trabajo_id as number)}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Descargar PDF"
+                          >
+                            <FileText className="h-4 w-4" />
+                          </button>
+                          <button
                             onClick={() => handleDownloadText(acta.trabajo_id as number)}
                             className="p-2 text-academic-600 hover:bg-academic-100 rounded-lg transition-colors"
                             title="Descargar Texto"
@@ -250,6 +262,15 @@ export default function Reports() {
                 >
                   <Download className="h-5 w-5 mr-2" />
                   Descargar Texto
+                </button>
+
+                <button
+                  onClick={() => selectedTrabajoId && handleDownloadPdf(Number(selectedTrabajoId))}
+                  disabled={!selectedTrabajoId || actasLoading}
+                  className="btn-secondary w-full flex justify-center items-center text-red-700 border-red-200 hover:bg-red-50"
+                >
+                  <FileText className="h-5 w-5 mr-2" />
+                  Descargar PDF
                 </button>
               </div>
             </div>
