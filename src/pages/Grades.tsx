@@ -1,207 +1,316 @@
-import { useState } from 'react';
-import { ClipboardList, Save, Award } from 'lucide-react';
-import { Grade } from '../types';
-import { AppConfig } from '../config/AppConfig';
+import { useState, useEffect } from 'react';
+import { ClipboardList, Plus, Edit2, Trash2, Search, RefreshCw } from 'lucide-react';
+import { Evaluacion } from '../types';
+import { useEvaluaciones, useCriterios, useTrabajos, useEvaluators } from '../hooks';
+import { useEvaluationDetails } from '../hooks/useEvaluationDetails';
+import { EvaluationCreateModal } from '../components/EvaluationCreateModal';
+import { EvaluationEditModal } from '../components/EvaluationEditModal';
+import { ConfirmModal } from '../components/ConfirmModal';
 
 export default function Grades() {
-  const [grades, setGrades] = useState<Grade[]>([]);
-  const config = AppConfig.getInstance();
-  const criteria = config.getEvaluationCriteria();
+  const {
+    evaluaciones,
+    loading: evaluacionesLoading,
+    error: evaluacionesError,
+    createEvaluacion,
+    updateEvaluacion,
+    deleteEvaluacion,
+    refresh
+  } = useEvaluaciones();
 
-  const [formData, setFormData] = useState({
-    workId: '',
-    evaluatorId: '',
-    criteriaId: '',
-    score: '',
-    comments: '',
+  const { criterios } = useCriterios();
+  const { trabajos, loading: trabajosLoading } = useTrabajos();
+  const { evaluators, loading: evaluatorsLoading } = useEvaluators();
+  const { detalles, loading: detailsLoading, fetchAllDetails } = useEvaluationDetails();
+
+  // Cargar detalles al montar
+  useEffect(() => {
+    fetchAllDetails();
+  }, [fetchAllDetails]);
+
+  const isLoading = evaluacionesLoading || trabajosLoading || evaluatorsLoading || detailsLoading;
+
+  // Combinar evaluaciones con sus detalles para obtener nota y criterio
+  const enrichedEvaluaciones = evaluaciones.map(evaluacion => {
+    const detalle = detalles.find(d => d.evaluacion_id === evaluacion.id);
+    return {
+      ...evaluacion,
+      nota: detalle?.nota || evaluacion.nota,
+      criterio_id: detalle?.criterio_id || evaluacion.criterio_id,
+      observacion: detalle?.observacion || evaluacion.observacion
+    };
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  console.log('Enriched Evaluaciones:', enrichedEvaluaciones);
+
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedEvaluacion, setSelectedEvaluacion] = useState<Evaluacion | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [evaluacionToDelete, setEvaluacionToDelete] = useState<number | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const handleCreate = () => {
+    setIsCreateModalOpen(true);
+  };
+
+  const handleSaveCreate = async (data: any) => {
+    const result = await createEvaluacion(data);
+    return !!result;
+  };
+
+  const handleEdit = (evaluacion: Evaluacion) => {
+    setSelectedEvaluacion(evaluacion);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveEdit = async (id: number, data: any) => {
+    const result = await updateEvaluacion(id, data);
+    return !!result;
+  };
+
+  const handleDelete = (id: number) => {
+    setEvaluacionToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (evaluacionToDelete !== null) {
+      await deleteEvaluacion(evaluacionToDelete);
+    }
+    setIsDeleteModalOpen(false);
+    setEvaluacionToDelete(null);
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-
-    const newGrade: Grade = {
-      id: Date.now().toString(),
-      workId: formData.workId,
-      evaluatorId: formData.evaluatorId,
-      criteriaId: formData.criteriaId,
-      score: parseFloat(formData.score),
-      comments: formData.comments,
-      createdAt: new Date().toISOString(),
-    };
-
-    setGrades([...grades, newGrade]);
-    setFormData({ workId: '', evaluatorId: '', criteriaId: '', score: '', comments: '' });
+    console.log('Searching for:', searchTerm);
   };
 
-  const getCriteriaName = (criteriaId: string) => {
-    const criterion = criteria.find((c, index) => index.toString() === criteriaId);
-    return criterion?.name || 'Desconocido';
+  const getCriteriaName = (criteriaId: number | undefined) => {
+    if (!criteriaId) return 'Sin criterio';
+    const criterion = criterios.find((c) => c.id === criteriaId);
+    return criterion?.nombre || 'Desconocido';
   };
+
+  const getTrabajoTitle = (id: number | undefined) => {
+    if (!id) return 'N/A';
+    const trabajo = trabajos.find(t => t.id === id);
+    return trabajo ? trabajo.titulo : `ID: ${id}`;
+  };
+
+  const getEvaluatorName = (id: number | undefined) => {
+    if (!id) return 'N/A';
+    const evaluator = evaluators.find(e => e.id === id);
+    return evaluator ? evaluator.nombre : `ID: ${id}`;
+  };
+
+  const filteredEvaluaciones = enrichedEvaluaciones.filter(evaluacion =>
+    searchTerm === '' ||
+    getCriteriaName(evaluacion.criterio_id).toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (evaluacion.observacion && evaluacion.observacion.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (evaluacion.comentarios && evaluacion.comentarios.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
   return (
     <div className="animate-fade-in">
-      <div className="flex items-center mb-8 animate-fade-in-down">
-        <div className="bg-tertiary-100 p-3 rounded-xl mr-4">
-          <ClipboardList className="h-7 w-7 text-tertiary-600" />
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 animate-fade-in-down">
+        <div className="flex items-center">
+          <div className="bg-tertiary-100 p-3 rounded-xl mr-4">
+            <ClipboardList className="h-7 w-7 text-tertiary-600" />
+          </div>
+          <div>
+            <h2 className="text-3xl font-bold text-gradient-tertiary">Evaluaciones</h2>
+            <p className="text-academic-600">Gestiona las evaluaciones de trabajos finales</p>
+          </div>
         </div>
-        <h2 className="text-3xl font-bold text-gradient-tertiary">Ingresar Notas</h2>
+        <button
+          onClick={handleCreate}
+          className="bg-gradient-to-r from-tertiary-600 to-tertiary-500 text-white font-semibold py-3 px-6 rounded-lg shadow-lg shadow-tertiary-200/50 hover:shadow-xl hover:shadow-tertiary-300/50 transition-all duration-300 hover:scale-105 active:scale-95 flex items-center"
+        >
+          <Plus className="h-5 w-5 mr-2" />
+          Nueva Evaluación
+        </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="card-elegant animate-fade-in-up">
-          <h3 className="text-xl font-bold text-academic-900 mb-6 flex items-center">
-            <Save className="h-5 w-5 mr-2 text-tertiary-600" />
-            Nueva Calificación
-          </h3>
-
-          <div className="mb-6 p-5 bg-gradient-to-r from-primary-50 to-primary-100/50 rounded-xl border-2 border-primary-200/50 animate-fade-in-up">
-            <h4 className="font-bold text-primary-900 mb-3 flex items-center">
-              <Award className="h-5 w-5 mr-2 text-primary-600" />
-              Criterios de Evaluación
-            </h4>
-            <ul className="space-y-2 text-sm text-primary-800">
-              {criteria.map((criterion, index) => (
-                <li key={index} className="flex items-start">
-                  <span className="text-primary-600 mr-2 font-bold">•</span>
-                  <span>
-                    <span className="font-semibold">{criterion.name}</span> - Peso:{' '}
-                    {(criterion.weight * 100).toFixed(0)}% (Max: {criterion.maxScore})
-                  </span>
-                </li>
-              ))}
-            </ul>
+      {/* Search Bar */}
+      <div className="card-elegant mb-8 animate-fade-in-up">
+        <form onSubmit={handleSearch} className="flex gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-academic-400 h-5 w-5" />
+            <input
+              type="text"
+              placeholder="Buscar evaluaciones por criterio u observación..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="input-elegant pl-12"
+            />
           </div>
+          <button type="submit" className="btn-secondary">
+            Buscar
+          </button>
+          <button
+            type="button"
+            onClick={refresh}
+            className="p-3 text-academic-500 hover:bg-academic-50 rounded-xl transition-colors"
+            title="Actualizar lista"
+          >
+            <RefreshCw className="h-5 w-5" />
+          </button>
+        </form>
+      </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="block text-sm font-semibold text-academic-700 mb-2">ID del Trabajo</label>
-              <input
-                type="text"
-                value={formData.workId}
-                onChange={(e) => setFormData({ ...formData, workId: e.target.value })}
-                className="input-elegant"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-academic-700 mb-2">
-                ID del Evaluador
-              </label>
-              <input
-                type="text"
-                value={formData.evaluatorId}
-                onChange={(e) => setFormData({ ...formData, evaluatorId: e.target.value })}
-                className="input-elegant"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-academic-700 mb-2">Criterio</label>
-              <select
-                value={formData.criteriaId}
-                onChange={(e) => setFormData({ ...formData, criteriaId: e.target.value })}
-                className="input-elegant"
-                required
-              >
-                <option value="">Seleccione un criterio</option>
-                {criteria.map((criterion, index) => (
-                  <option key={index} value={index.toString()}>
-                    {criterion.name} (Max: {criterion.maxScore})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-academic-700 mb-2">
-                Puntuación (0-5)
-              </label>
-              <input
-                type="number"
-                min="0"
-                max="5"
-                step="0.1"
-                value={formData.score}
-                onChange={(e) => setFormData({ ...formData, score: e.target.value })}
-                className="input-elegant"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-academic-700 mb-2">
-                Comentarios (Opcional)
-              </label>
-              <textarea
-                value={formData.comments}
-                onChange={(e) => setFormData({ ...formData, comments: e.target.value })}
-                className="input-elegant resize-none"
-                rows={3}
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-gradient-to-r from-tertiary-600 to-tertiary-500 text-white font-semibold py-3 px-6 rounded-lg shadow-lg shadow-tertiary-200/50 hover:shadow-xl hover:shadow-tertiary-300/50 transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center"
-            >
-              <Save className="h-5 w-5 mr-2" />
-              Registrar Calificación
-            </button>
-          </form>
+      {/* Error Message */}
+      {evaluacionesError && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 flex items-center animate-fade-in">
+          <div className="bg-red-100 p-2 rounded-full mr-3">
+            <span className="text-xl">⚠️</span>
+          </div>
+          {evaluacionesError}
         </div>
+      )}
 
-        <div className="card-elegant animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-          <h3 className="text-xl font-bold text-academic-900 mb-6 flex items-center">
-            <ClipboardList className="h-5 w-5 mr-2 text-tertiary-600" />
-            Calificaciones Registradas
-            <span className="ml-3 bg-tertiary-100 text-tertiary-700 px-3 py-1 rounded-full text-sm font-semibold">
-              {grades.length}
-            </span>
-          </h3>
-          <div className="space-y-4 max-h-96 overflow-y-auto">
-            {grades.length === 0 ? (
-              <div className="text-center py-12 animate-fade-in">
-                <Award className="h-16 w-16 text-academic-300 mx-auto mb-4" />
-                <p className="text-academic-500 font-medium">No hay calificaciones registradas</p>
-              </div>
-            ) : (
-              grades.map((grade, index) => (
-                <div
-                  key={grade.id}
-                  className="bg-gradient-to-r from-academic-50 to-tertiary-50/30 border-2 border-academic-200/50 rounded-xl p-5 hover-lift-subtle animate-fade-in-up"
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="flex-1">
-                      <h4 className="font-bold text-academic-900 mb-2 text-lg">
-                        {getCriteriaName(grade.criteriaId)}
-                      </h4>
-                      <div className="space-y-1">
-                        <p className="text-sm text-academic-700">
-                          <span className="font-semibold">Trabajo ID:</span> {grade.workId}
-                        </p>
-                        <p className="text-sm text-academic-700">
-                          <span className="font-semibold">Evaluador ID:</span> {grade.evaluatorId}
-                        </p>
+      {/* Evaluations Grid */}
+      {/* Evaluations Table */}
+      <div className="card-elegant overflow-hidden animate-fade-in-up">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-tertiary-50 border-b border-tertiary-200">
+              <tr>
+                {/* <th className="px-6 py-4 text-left text-xs font-semibold text-tertiary-800 uppercase tracking-wider">
+                  ID
+                </th> */}
+                <th className="px-6 py-4 text-left text-xs font-semibold text-tertiary-800 uppercase tracking-wider">
+                  Criterio
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-tertiary-800 uppercase tracking-wider">
+                  Trabajo
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-tertiary-800 uppercase tracking-wider">
+                  Evaluador
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-tertiary-800 uppercase tracking-wider">
+                  Fecha
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-tertiary-800 uppercase tracking-wider">
+                  Nota
+                </th>
+                <th className="px-6 py-4 text-right text-xs font-semibold text-tertiary-800 uppercase tracking-wider">
+                  Acciones
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-academic-100">
+              {isLoading ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-12 text-center text-academic-500">
+                    <div className="flex flex-col items-center justify-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-tertiary-600 mb-2"></div>
+                      <p>Cargando evaluaciones...</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : filteredEvaluaciones.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-12 text-center text-academic-500">
+                    <div className="flex flex-col items-center justify-center">
+                      <ClipboardList className="h-12 w-12 text-academic-300 mb-2" />
+                      <p>{searchTerm ? 'No se encontraron evaluaciones con ese criterio' : 'No hay evaluaciones registradas'}</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredEvaluaciones.map((evaluacion, index) => (
+                  <tr
+                    key={evaluacion.id}
+                    className="hover:bg-tertiary-50/50 transition-colors animate-fade-in-up"
+                    style={{ animationDelay: `${index * 30}ms` }}
+                  >
+                    {/* <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="bg-tertiary-100 text-tertiary-700 px-2 py-1 rounded-lg text-xs font-bold">
+                        #{evaluacion.id}
+                      </span>
+                    </td> */}
+                    <td className="px-6 py-4">
+                      <div className="text-sm font-medium text-academic-900">
+                        {getCriteriaName(evaluacion.criterio_id)}
                       </div>
-                    </div>
-                    <div className="bg-tertiary-100 text-tertiary-700 px-4 py-2 rounded-xl font-bold text-xl shadow-md">
-                      {grade.score}
-                    </div>
-                  </div>
-                  {grade.comments && (
-                    <div className="mt-3 pt-3 border-t border-academic-200">
-                      <p className="text-sm text-academic-600 italic">{grade.comments}</p>
-                    </div>
-                  )}
-                </div>
-              ))
-            )}
-          </div>
+                      {(evaluacion.observacion || evaluacion.comentarios) && (
+                        <div className="text-xs text-academic-500 truncate max-w-xs" title={evaluacion.observacion || evaluacion.comentarios}>
+                          {evaluacion.observacion || evaluacion.comentarios}
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-academic-600">
+                      <div className="font-medium text-academic-900 truncate max-w-xs" title={getTrabajoTitle(evaluacion.trabajo_id)}>
+                        {getTrabajoTitle(evaluacion.trabajo_id)}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-academic-600">
+                      {getEvaluatorName(evaluacion.evaluador_id)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-academic-600">
+                      {evaluacion.fecha_evaluacion || 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="bg-tertiary-100 text-tertiary-700 px-3 py-1 rounded-lg font-bold text-sm">
+                        {evaluacion.nota}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => handleEdit(evaluacion)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="Editar"
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(evaluacion.id)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Eliminar"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
+
+      {/* Modals */}
+      <EvaluationCreateModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSave={handleSaveCreate}
+        loading={evaluacionesLoading}
+      />
+
+      <EvaluationEditModal
+        evaluacion={selectedEvaluacion}
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedEvaluacion(null);
+        }}
+        onSave={handleSaveEdit}
+        loading={evaluacionesLoading}
+      />
+
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        message="¿Estás seguro de que deseas eliminar esta evaluación?"
+        onConfirm={confirmDelete}
+        onCancel={() => {
+          setIsDeleteModalOpen(false);
+          setEvaluacionToDelete(null);
+        }}
+      />
     </div>
   );
 }

@@ -7,7 +7,8 @@ export class ApiService {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = config.getApiBaseUrl();
+    // Obtener URL base y normalizar (eliminar barra final si existe)
+    this.baseUrl = config.getApiBaseUrl().replace(/\/$/, '');
   }
 
   async fetchStudents(): Promise<Student[]> {
@@ -17,7 +18,7 @@ export class ApiService {
   }
 
   async createStudent(student: Omit<Student, 'id' | 'createdAt'>): Promise<Student> {
-    const response = await fetch(`${this.baseUrl}/students`, {
+    const response = await fetch(`${this.baseUrl}/students/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(student),
@@ -27,13 +28,13 @@ export class ApiService {
   }
 
   async fetchWorks(): Promise<Work[]> {
-    const response = await fetch(`${this.baseUrl}/works`);
+    const response = await fetch(`${this.baseUrl}/works/`);
     if (!response.ok) throw new Error('Failed to fetch works');
     return response.json();
   }
 
   async createWork(work: Omit<Work, 'id' | 'createdAt'>): Promise<Work> {
-    const response = await fetch(`${this.baseUrl}/works`, {
+    const response = await fetch(`${this.baseUrl}/works/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(work),
@@ -43,13 +44,13 @@ export class ApiService {
   }
 
   async fetchEvaluators(): Promise<Evaluator[]> {
-    const response = await fetch(`${this.baseUrl}/evaluators`);
+    const response = await fetch(`${this.baseUrl}/evaluators/`);
     if (!response.ok) throw new Error('Failed to fetch evaluators');
     return response.json();
   }
 
   async createEvaluator(evaluator: Omit<Evaluator, 'id' | 'createdAt'>): Promise<Evaluator> {
-    const response = await fetch(`${this.baseUrl}/evaluators`, {
+    const response = await fetch(`${this.baseUrl}/evaluators/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(evaluator),
@@ -66,7 +67,7 @@ export class ApiService {
   }
 
   async createGrade(grade: Omit<Grade, 'id' | 'createdAt'>): Promise<Grade> {
-    const response = await fetch(`${this.baseUrl}/grades`, {
+    const response = await fetch(`${this.baseUrl}/grades/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(grade),
@@ -76,7 +77,7 @@ export class ApiService {
   }
 
   async generateReport(workId: string): Promise<string> {
-    const response = await fetch(`${this.baseUrl}/reports/${workId}`);
+    const response = await fetch(`${this.baseUrl}/reports/${workId}/`);
     if (!response.ok) throw new Error('Failed to generate report');
     const data = await response.json();
     return data.report;

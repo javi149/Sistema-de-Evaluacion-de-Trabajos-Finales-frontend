@@ -1,4 +1,4 @@
-import { BookOpen, Users, Award, FileText } from 'lucide-react';
+import { BookOpen, Users, Award, FileText, Briefcase } from 'lucide-react';
 
 interface HomeProps {
   onNavigate: (page: string) => void;
@@ -46,14 +46,44 @@ export default function Home({ onNavigate }: HomeProps) {
       iconBg: 'bg-tertiary-100',
       iconColor: 'text-tertiary-600',
     },
+    {
+      icon: FileText,
+      title: 'Actas y Reportes',
+      description: 'Visualiza y descarga las actas de evaluación',
+      action: 'reports',
+      gradient: 'from-primary-500 to-primary-600',
+      bgGradient: 'from-primary-50 to-primary-100/50',
+      iconBg: 'bg-primary-100',
+      iconColor: 'text-primary-600',
+    },
+    {
+      icon: Award,
+      title: 'Criterios de Evaluación',
+      description: 'Define y gestiona los criterios y ponderaciones',
+      action: 'criteria',
+      gradient: 'from-accent-500 to-accent-600',
+      bgGradient: 'from-accent-50 to-accent-100/50',
+      iconBg: 'bg-accent-100',
+      iconColor: 'text-accent-600',
+    },
+    {
+      icon: Briefcase,
+      title: 'Tipos de Trabajo',
+      description: 'Configura los tipos de trabajos finales disponibles',
+      action: 'work-types',
+      gradient: 'from-secondary-500 to-secondary-600',
+      bgGradient: 'from-secondary-50 to-secondary-100/50',
+      iconBg: 'bg-secondary-100',
+      iconColor: 'text-secondary-600',
+    },
   ];
 
   return (
     <div className="animate-fade-in">
       <div className="text-center mb-16 animate-fade-in-up">
-        <h2 className="text-4xl font-bold text-gradient-primary mb-6 animate-scale-in">
+        {/* <h2 className="text-4xl font-bold text-gradient-primary mb-6 animate-scale-in">
           Sistema de Evaluación de Trabajos Finales
-        </h2>
+        </h2> */}
         <p className="text-xl text-academic-700 max-w-3xl mx-auto leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
           Plataforma integral para la gestión, evaluación y generación de actas de trabajos de
           grado

@@ -1,4 +1,4 @@
-import { Users, FileText, UserCheck, ClipboardList, FileCheck } from 'lucide-react';
+import { Users, FileText, UserCheck, ClipboardList, FileCheck, Award, Briefcase } from 'lucide-react';
 
 interface NavigationProps {
   currentPage: string;
@@ -12,6 +12,8 @@ export default function Navigation({ currentPage, onNavigate }: NavigationProps)
     { id: 'evaluators', label: 'Registrar Evaluadores', icon: UserCheck, color: 'secondary' },
     { id: 'grades', label: 'Ingresar Notas', icon: ClipboardList, color: 'tertiary' },
     { id: 'reports', label: 'Ver Actas', icon: FileCheck, color: 'primary' },
+    { id: 'criteria', label: 'Gestionar Criterios', icon: Award, color: 'accent' },
+    { id: 'work-types', label: 'Tipos de Trabajo', icon: Briefcase, color: 'secondary' },
   ];
 
   const getActiveClasses = (color: string) => {
@@ -35,11 +37,10 @@ export default function Navigation({ currentPage, onNavigate }: NavigationProps)
               key={item.id}
               onClick={() => onNavigate(item.id)}
               style={{ animationDelay: `${index * 80}ms` }}
-              className={`flex items-center px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-400 hover-lift-subtle animate-fade-in-up ${
-                isActive
-                  ? getActiveClasses(item.color)
-                  : 'bg-academic-100/80 text-academic-700 hover:bg-academic-200/80 hover:text-academic-900 border border-academic-200/50'
-              }`}
+              className={`flex items-center px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-400 hover-lift-subtle animate-fade-in-up ${isActive
+                ? getActiveClasses(item.color)
+                : 'bg-academic-100/80 text-academic-700 hover:bg-academic-200/80 hover:text-academic-900 border border-academic-200/50'
+                }`}
             >
               <Icon className={`h-5 w-5 mr-2.5 transition-all duration-300 ${isActive ? 'scale-110 rotate-3' : 'group-hover:scale-110'}`} />
               {item.label}
